@@ -8,6 +8,7 @@ authors = [
 dependencies = [
     "opencv-python>=4.6.0.66",
     "scikit-image>=0.19.3",
+    "typer>=0.6.1",
 ]
 requires-python = ">=3.10"
 readme = "README.md"
@@ -44,4 +45,4 @@ lint = {composite = ["flake8", "mypy"]}
 test = "pytest -vv -p no:cacheprovider --cov=egsis"
 format = "black egsis/ tests/"
 check = {composite = ["lint egsis/", "test tests/"]}
-
+egsis = {call = "egsis.main:cli"}

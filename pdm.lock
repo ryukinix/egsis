@@ -894,6 +894,15 @@ requires_python = ">=3.7"
 summary = ""
 
 [[package]]
+name = "typer"
+version = "0.6.1"
+requires_python = ">=3.6"
+summary = "Typer, build great CLIs. Easy to code. Based on Python type hints."
+dependencies = [
+    "click<9.0.0,>=7.1.1",
+]
+
+[[package]]
 name = "typing-extensions"
 version = "4.3.0"
 requires_python = ">=3.7"
@@ -923,7 +932,7 @@ summary = "WebSocket client for Python with low level API options"
 
 [metadata]
 lock_version = "4.0"
-content_hash = "sha256:50d68478e7501737107002758026615a10b5a9bd8d300e732694a0c4a5392761"
+content_hash = "sha256:224bbd4b67a443480ea9b1feda644d9b417a4aff53f75241b128256086a1b999"
 
 [metadata.files]
 "anyio 3.6.1" = [
@@ -1926,6 +1935,10 @@ content_hash = "sha256:50d68478e7501737107002758026615a10b5a9bd8d300e732694a0c4a
 "traitlets 5.3.0" = [
     {url = "https://files.pythonhosted.org/packages/83/a9/1059771062cb80901c34a4dea020e76269412e69300b4ba12e3356865ad8/traitlets-5.3.0-py3-none-any.whl", hash = "sha256:65fa18961659635933100db8ca120ef6220555286949774b9cfc106f941d1c7a"},
     {url = "https://files.pythonhosted.org/packages/b2/ed/3c842dbe5a8f0f1ebf3f5b74fc1a46601ed2dfe0a2d256c8488d387b14dd/traitlets-5.3.0.tar.gz", hash = "sha256:0bb9f1f9f017aa8ec187d8b1b2a7a6626a2a1d877116baba52a129bfa124f8e2"},
+]
+"typer 0.6.1" = [
+    {url = "https://files.pythonhosted.org/packages/cf/f9/27c5cd9ab067e3ece4cecb920c33f38cc986f839b12de19650fd49dc3c63/typer-0.6.1.tar.gz", hash = "sha256:2d5720a5e63f73eaf31edaa15f6ab87f35f0690f8ca233017d7d23d743a91d73"},
+    {url = "https://files.pythonhosted.org/packages/e8/9b/7470461c68588ed09c2e53cbb16b802815232796d95f7b4744cc8842f19d/typer-0.6.1-py3-none-any.whl", hash = "sha256:54b19e5df18654070a82f8c2aa1da456a4ac16a2a83e6dcd9f170e291c56338e"},
 ]
 "typing-extensions 4.3.0" = [
     {url = "https://files.pythonhosted.org/packages/9e/1d/d128169ff58c501059330f1ad96ed62b79114a2eb30b8238af63a2e27f70/typing_extensions-4.3.0.tar.gz", hash = "sha256:e6d2677a32f47fc7eb2795db1dd15c1f34eff616bcaf2cfb5e997f854fa1c4a6"},
