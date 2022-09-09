@@ -12,6 +12,7 @@ DOCKER_RUN = docker run \
 MOUNT_NOTEBOOK = -v $(PWD)/notebooks:/app/notebooks
 EXPOSE_PORT = --net=host
 
+
 install: # install locally
 	python -m venv .venv
 	source .venv/bin/activate
@@ -33,6 +34,8 @@ publish: build
 
 check: build
 	$(DOCKER_RUN) $(PROJECT_NAME) check
+	sed -i "s|/app|$(PWD)|g" tests/coverage.xml
+
 
 lint: build
 	$(DOCKER_RUN) $(PROJECT_NAME) lint egsis/ tests/
