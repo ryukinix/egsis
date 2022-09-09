@@ -30,7 +30,7 @@ jobs:
         run: make check
 
   coverage:
-    needs: [build]
+    needs: [test, build]
     name: flake8+mypy+pytest
     runs-on: ubuntu-latest
     steps:
