@@ -9,19 +9,33 @@ on:
       - master
 
 jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+      - name: Build docker image
+        run: make build
+
   test:
+    needs: [build]
     name: flake8+mypy+pytest
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        python-version: ['3.10']
-        os: [ubuntu-latest]
+    runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
 
       - name: Run Tests
         run: make check
+
+  coverage:
+    needs: [build]
+    name: flake8+mypy+pytest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
 
       - name: Code Coverage Report
         uses: irongut/CodeCoverageSummary@v1.3.0
