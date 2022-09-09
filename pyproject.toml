@@ -9,8 +9,9 @@ dependencies = [
     "opencv-python>=4.6.0.66",
     "scikit-image>=0.19.3",
     "typer>=0.6.1",
+    "matplotlib>=3.5.3",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 readme = "README.md"
 license = {text = "MIT"}
 [project.optional-dependencies]
