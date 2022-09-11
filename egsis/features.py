@@ -1,3 +1,5 @@
+from typing import List
+
 import numpy as np
 
 
@@ -9,18 +11,44 @@ def feature_extraction(img: np.ndarray) -> np.ndarray:
     NOTE(@lerax): dom 11 set 2022 09:49:35
     Maybe I should use PCA to reduce the high dimensional space.
     """
-    return abs(np.fft.fftshift(np.fft.fftn(img)).flatten())
+    return np.fft.fftshift(np.fft.fftn(img)).flatten()
 
 
-def get_segment_using_label(
+def get_segment_by_label(
     img: np.ndarray,
     segments: np.ndarray,
-    label: int
+    label: int,
+    erase_color: int = 0
 ) -> np.ndarray:
     """Return only the segment selected"""
     img_copy = img.copy()
-    img_copy[segments == label] = 0
+    if erase_color is not None:
+        img_copy[segments != label] = erase_color
     return img_copy
+
+
+def crop_image(
+    img: np.ndarray,
+    max_radius: int,
+    centroid: List[int],
+):
+    x, y = centroid
+    return img[
+        y - max_radius: y + max_radius,
+        x - max_radius: x + max_radius
+    ]
+
+
+def get_segment_by_label_cropped(
+    img: np.ndarray,
+    segments: np.ndarray,
+    label: int,
+    max_radius: int,
+    centroid: List[int],
+    erase_color: int = 0
+):
+    segment = get_segment_by_label(img, segments, label, erase_color=erase_color)
+    return crop_image(segment, max_radius, centroid)
 
 
 def euclidian_distance(u: np.ndarray, v: np.ndarray) -> np.floating:
@@ -51,7 +79,7 @@ def feature_extraction_segment(
 ):
     """Return the features of the segment"""
     return feature_extraction(
-        get_segment_using_label(
+        get_segment_by_label(
             img,
             segments,
             label

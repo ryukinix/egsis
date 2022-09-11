@@ -20,11 +20,11 @@ def superpixel_centroids(segments: numpy.ndarray) -> Dict[int, List[int]]:
     segments: numpy.array
         Segments of image as superpixel
 
-    Return
+    Returns
     ------
-    Dictionary with keys as superpixel label and values as (x, y)
-    point of centroid.
-
+    centroids: Dict[int, List[int]]
+        Dictionary with keys as superpixel label and values as (x, y)
+        point of centroid.
     """
     superpixel_points: Dict[int, List[numpy.ndarray]] = {}
     height, width = segments.shape
@@ -40,19 +40,39 @@ def superpixel_centroids(segments: numpy.ndarray) -> Dict[int, List[int]]:
     }
 
 
-def superpixels_max_window_size(
+def _check_point_inside_superpixel(
+    segments: numpy.ndarray,
+    superpixel_label: int,
+    point: Tuple[int, int],
+):
+    height, width = segments.shape
+    y, x = point
+    restrictions = [
+        x < width,
+        y < height,
+        x > 0,
+        y > 0
+    ]
+
+    if not all(restrictions):
+        return False
+
+    return segments[point] == superpixel_label
+
+
+def superpixels_max_radius(
     segments: numpy.ndarray,
     centroids: Dict[int, List[int]]
-) -> Tuple[str, str]:
-    """Calculate the max window size present in the matrix of segments.
+) -> int:
+    """Calculate the max diameter size in the matrix of segments.
 
-    By using a radial expantion, it tries to calculate optimally the
-    max window size for all superpixels.
+    By using a squared expantion, it tries to calculate optimally the
+    max diameter of all superpixels.
 
     Parameters
     ----------
-    segments : numpy.ndarray (height, width)
-         Matrix of segments with each value being the label of superpixels
+    segments : numpy.ndarray shape=(height, width)
+         Matrix of segments, each value being the label of superpixel
     centroids : Dict[int, List[int]]
          Map of centroids for each superpixel.
          Each key represents the label of superpixel
@@ -60,5 +80,34 @@ def superpixels_max_window_size(
 
     Return
     ------
-    (max_height, max_width) to crop superpixels
+    max_diameter : int
+        To be used to crop superpixels
     """
+    radius = 1
+    superpixel_labels = set(centroids.keys())
+    while len(superpixel_labels) > 1:
+        for superpixel in superpixel_labels.copy():
+            centroid_pos = centroids[superpixel]
+            y, x = centroid_pos
+            search_points = [
+                (x, y + radius),
+                (x + radius, y),
+                (x, y - radius),
+                (x - radius, y),
+                (x + radius, y + radius),
+                (x + radius, y - radius),
+                (x - radius, y + radius),
+                (x - radius, y - radius),
+            ]
+            square_inside_of_superpixel = any(
+                _check_point_inside_superpixel(
+                    segments,
+                    superpixel,
+                    p
+                )
+                for p in search_points
+            )
+            if not square_inside_of_superpixel:
+                superpixel_labels.remove(superpixel)
+        radius += 1
+    return radius
