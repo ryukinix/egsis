@@ -1,8 +1,8 @@
-import numpy
 import networkx as nx
+import numpy
+import pytest
 
 from egsis import complex_networks
-
 
 def test_complex_network_from_segments():
     example = numpy.array(
@@ -21,3 +21,20 @@ def test_complex_network_from_segments():
 
     got = complex_networks.complex_network_from_segments(example)
     assert nx.utils.graphs_equal(got, expected), f"{expected}, {got}"
+
+
+def test_draw_complex_network():
+    complex_networks.draw_complex_network(
+        nx.Graph(
+            {
+                0: {1},
+                1: {0},
+            },
+        ),
+        numpy.array(
+            [
+                [0, 0],
+                [1, 1]
+            ]
+        )
+    )
