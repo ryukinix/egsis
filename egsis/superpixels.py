@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import numpy
 
@@ -38,3 +38,27 @@ def superpixel_centroids(segments: numpy.ndarray) -> Dict[int, List[int]]:
         superpixel: _calculate_centroid(points)
         for superpixel, points in superpixel_points.items()
     }
+
+
+def superpixels_max_window_size(
+    segments: numpy.ndarray,
+    centroids: Dict[int, List[int]]
+) -> Tuple[str, str]:
+    """Calculate the max window size present in the matrix of segments.
+
+    By using a radial expantion, it tries to calculate optimally the
+    max window size for all superpixels.
+
+    Parameters
+    ----------
+    segments : numpy.ndarray (height, width)
+         Matrix of segments with each value being the label of superpixels
+    centroids : Dict[int, List[int]]
+         Map of centroids for each superpixel.
+         Each key represents the label of superpixel
+         Values represents the point of the centroid.
+
+    Return
+    ------
+    (max_height, max_width) to crop superpixels
+    """
