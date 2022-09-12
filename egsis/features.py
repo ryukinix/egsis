@@ -47,7 +47,12 @@ def get_segment_by_label_cropped(
     centroid: List[int],
     erase_color: int = 0
 ):
-    segment = get_segment_by_label(img, segments, label, erase_color=erase_color)
+    segment = get_segment_by_label(
+        img,
+        segments,
+        label,
+        erase_color=erase_color
+    )
     return crop_image(segment, max_radius, centroid)
 
 
