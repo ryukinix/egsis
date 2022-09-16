@@ -4,14 +4,12 @@ import numpy as np
 
 
 def feature_extraction(img: np.ndarray) -> np.ndarray:
-    """Real part of multidimensional fourier transform
-
-    Using flatten to make it possible use cosine-similarity.
+    """Multidimensional fourier transform
 
     NOTE(@lerax): dom 11 set 2022 09:49:35
     Maybe I should use PCA to reduce the high dimensional space.
     """
-    return np.fft.fftshift(np.fft.fftn(img)).flatten()
+    return np.fft.fftshift(np.fft.fftn(img))
 
 
 def get_segment_by_label(
@@ -74,6 +72,14 @@ def cosine_similarity(u: np.ndarray, v: np.ndarray) -> np.floating:
 
     Can only be used in 1D arrays.
     """
+    u_shape, v_shape = u.shape, v.shape
+    if u_shape != v_shape:
+        msg = f"Vectors with different shapes: u={u_shape}; v={v_shape}"
+        raise ValueError(msg)
+    if len(u_shape) > 1 or len(v_shape) > 1:
+        u = u.flatten()
+        v = v.flatten()
+
     return np.dot(u, v) / (np.linalg.norm(u) * np.linalg.norm(v))
 
 

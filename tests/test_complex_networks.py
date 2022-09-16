@@ -4,6 +4,7 @@ import pytest
 
 from egsis import complex_networks
 
+
 def test_complex_network_from_segments():
     example = numpy.array(
         [
