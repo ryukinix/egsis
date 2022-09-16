@@ -10,10 +10,10 @@ similarity_functions = {
 }
 
 
-class LabelComponentUnfolding:
+class LabeledComponentUnfolding:
 
     """
-    Collective Dynamic Label Component Unfolding
+    Collective Dynamic Labeled Component Unfolding
 
 
     It can be used to solve Semi-Supervised problems.
