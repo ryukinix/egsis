@@ -30,6 +30,7 @@ def crop_image(
     max_radius: int,
     centroid: List[int],
 ):
+    """Crop image as square window with max_radius and centroid point"""
     x, y = centroid
     return img[
         y - max_radius: y + max_radius,
