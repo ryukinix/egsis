@@ -2,13 +2,6 @@ from typing import List
 
 import networkx as nx
 
-from egsis import features
-
-similarity_functions = {
-    "euclidian": features.euclidian_distance,
-    "cosine": features.cosine_similarity
-}
-
 
 class LabeledComponentUnfolding:
 
@@ -33,10 +26,6 @@ class LabeledComponentUnfolding:
          The time limit parameter controls when the simulation should
          stop; it must be at least as large as the diameter of the network.
 
-    similarity: str
-         Similarity function name to be used in vertex walk
-         probability function.
-
     Reference
     ---------
     Filipe Alves Neto Verri, Paulo Roberto Urio, Liang Zhao: “Network
@@ -51,24 +40,29 @@ class LabeledComponentUnfolding:
         n_classes: int,
         competition_level: float = 1,
         max_iter: int = 500,
-        similarity='euclidian'
     ):
         assert competition_level > 0 and competition_level <= 1
         self.competition_level = competition_level
         self.max_iter = max_iter
         self.n_classes = n_classes
-        self.similarity_function = similarity_functions[similarity]
-        self.complex_network = None
 
-    def fit_predict(self, complex_network: nx.Graph) -> nx.Graph:
+    def init(self, G: nx.Graph):
+        pass
+
+    def step(self, G: nx.Graph):
+        pass
+
+    def fit_predict(self, G: nx.Graph) -> nx.Graph:
         """Fit complex network and predict new unlabeled data points.
 
         Each vertex of the complex_network should contains the
         label (if it's labeled) and it's features.
         """
-        pass
+        self.init(G)
+        for _ in range(self.max_iter):
+            self.step(G)
 
-    def unfold(self, complex_network: nx.Graph) -> List[nx.Graph]:
+    def unfold(self, G: nx.Graph) -> List[nx.Graph]:
         pass
 
     def current_relative_subordination(self, node, label):
