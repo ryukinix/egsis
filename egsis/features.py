@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 
@@ -16,7 +16,7 @@ def get_segment_by_label(
     img: np.ndarray,
     segments: np.ndarray,
     label: int,
-    erase_color: int = 0
+    erase_color: Optional[int] = 0
 ) -> np.ndarray:
     """Return only the segment selected"""
     img_copy = img.copy()
@@ -44,7 +44,7 @@ def get_segment_by_label_cropped(
     label: int,
     max_radius: int,
     centroid: List[int],
-    erase_color: int = 0
+    erase_color: Optional[int] = 0
 ):
     segment = get_segment_by_label(
         img,
@@ -87,13 +87,30 @@ def cosine_similarity(u: np.ndarray, v: np.ndarray) -> np.floating:
 def feature_extraction_segment(
     img: np.ndarray,
     segments: np.ndarray,
-    label: int
+    label: int,
+    max_radius: Optional[int] = None,
+    centroid: Optional[List[int]] = None,
+    erase_color: Optional[int] = 0
 ):
-    """Return the features of the segment"""
-    return feature_extraction(
-        get_segment_by_label(
+    """Return the features of the segment
+
+    If centroid and max_radius are provided, it crops the image
+    """
+
+    if any(param is not None for param in (max_radius, centroid)):
+        image_segment = get_segment_by_label_cropped(
+            img,
+            segments,
+            label,
+            max_radius=max_radius,  # type: ignore
+            centroid=centroid,  # type: ignore
+            erase_color=erase_color
+        )
+    else:
+        image_segment = get_segment_by_label(
             img,
             segments,
             label
         )
-    )
+
+    return feature_extraction(image_segment)
