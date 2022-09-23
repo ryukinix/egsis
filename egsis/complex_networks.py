@@ -1,9 +1,10 @@
-from typing import Dict, Set
+from typing import Dict, Set, Callable, Tuple
 
 import numpy
 import networkx
 
 from egsis import superpixels
+from egsis import features
 
 
 def complex_network_from_segments(segments: numpy.ndarray) -> networkx.Graph:
@@ -44,6 +45,45 @@ def complex_network_from_segments(segments: numpy.ndarray) -> networkx.Graph:
             graph.setdefault(vertex, set())
             graph[vertex] |= neighbors
     return networkx.Graph(graph)
+
+
+def compute_node_labels(
+    graph: networkx.Graph,
+    img: numpy.ndarray,
+    segments: numpy.ndarray,
+    labels: numpy.ndarray
+):
+    """Add node label based on superpixel and img pixel labels"""
+    pass
+
+
+def compute_node_features(
+    graph: networkx.Graph,
+    img: numpy.ndarray,
+    segments: numpy.ndarray
+):
+    centroids = superpixels.superpixel_centroids(segments)
+    max_radius = superpixels.superpixels_max_radius(segments, centroids)
+    for v in graph.nodes:
+        graph.nodes[v]["features"] = features.feature_extraction_segment(
+            img=img,
+            segments=segments,
+            label=v,
+            max_radius=max_radius,
+            centroid=centroids[v],
+        )
+
+
+def compute_edge_weights(
+    graph: networkx.Graph,
+    similarity_function: Callable
+) -> networkx.Graph:
+    """It assumes that the graph already have node with features."""
+    similarities: Dict[Tuple[int, int], float] = {}
+    for (vi, vj) in graph.edges:
+        xi, xj = graph.nodes[vi]["features"], graph.nodes[vj]["features"]
+        similarities[(vi, vj)] = similarity_function(xi, xj)
+    graph.set_edge_attributes(graph, similarities, "weight")
 
 
 def draw_complex_network(
