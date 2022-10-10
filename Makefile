@@ -3,7 +3,14 @@ DOCKER_REGISTRY := ryukinix/egsis
 VERSION := latest
 UID = $(shell id -u)
 GID = $(shell id -g)
-DOCKER_RUN = docker run \
+DOCKER = docker
+ifeq ($(DOCKER), podman)
+	DOCKER_FLAGS=--userns keep-id
+else
+	DOCKER_FLAGS=
+endif
+
+DOCKER_RUN = $(DOCKER) run $(DOCKER_FLAGS) \
 					--user $(UID):$(GID) \
 					-e HOME=/tmp --rm \
 					-t \
@@ -23,14 +30,14 @@ run: build
 	$(DOCKER_RUN) $(PROJECT_NAME)
 
 pull:
-	docker pull $(DOCKER_REGISTRY)
+	$(DOCKER) pull $(DOCKER_REGISTRY)
 
 build:
-	docker build -t $(PROJECT_NAME) .
+	$(DOCKER) build -t $(PROJECT_NAME) .
 
 publish: build
-	docker tag $(PROJECT_NAME) $(DOCKER_REGISTRY):$(VERSION)
-	docker push $(DOCKER_REGISTRY):$(VERSION)
+	$(DOCKER) tag $(PROJECT_NAME) $(DOCKER_REGISTRY):$(VERSION)
+	$(DOCKER) push $(DOCKER_REGISTRY):$(VERSION)
 
 check: build
 	$(DOCKER_RUN) $(PROJECT_NAME) check
