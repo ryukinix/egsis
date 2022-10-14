@@ -1,6 +1,7 @@
 from typing import List
 
 import networkx as nx
+import numpy as np
 
 
 class LabeledComponentUnfolding:
@@ -45,12 +46,35 @@ class LabeledComponentUnfolding:
         self.competition_level = competition_level
         self.max_iter = max_iter
         self.n_classes = n_classes
+        self.classes = list(range(1, n_classes + 1))
+
+    def n0(self, G: nx.Graph, c: int):
+        pass
+
+    def N0(self, G: nx.Graph, c: int):
+        pass
+
+    def delta0(self, G: nx.Graph, c: int):
+        pass
 
     def init(self, G: nx.Graph):
-        pass
+        C = self.n_classes
+        i = j = G.number_of_nodes
+        self.n = np.zeros(shape=(C, i))
+        self.N = np.zeros(shape=(C, i, j))
+        self.delta = np.zeros(shape=(C, i, j))
+        for c in self.classes:
+            self.n[c] = self.n0(G, c)
+            self.N[c] = self.N0(G, c)
+            self.delta[c] = self.delta0(G, self.comet)
 
-    def step(self, G: nx.Graph):
-        pass
+    def step(self, G: nx.Graph, t: int):
+        for c in self.classes:
+            P = self.probility_function(G)
+            g = self.G(G, self.N, self.compet)
+            self.N[c] = self.N0(G, c)
+            self.n[c] = self.n[c] @ P
+            self.delta[c] += self.N[c]
 
     def fit_predict(self, G: nx.Graph) -> nx.Graph:
         """Fit complex network and predict new unlabeled data points.
@@ -59,8 +83,8 @@ class LabeledComponentUnfolding:
         label (if it's labeled) and it's features.
         """
         self.init(G)
-        for _ in range(self.max_iter):
-            self.step(G)
+        for t in range(self.max_iter):
+            self.step(G, t)
 
     def unfold(self, G: nx.Graph) -> List[nx.Graph]:
         pass
@@ -77,5 +101,5 @@ class LabeledComponentUnfolding:
     def subnetwork_of_class(self, label):
         pass
 
-    def probability_function(self):
+    def probability_function(self, G: nx.Graph, N: np.ndarray) -> np.ndarray:
         pass
