@@ -54,7 +54,7 @@ class LabeledComponentUnfolding:
     def N0(self, G: nx.Graph, c: int):
         pass
 
-    def delta0(self, G: nx.Graph, c: int):
+    def delta0(self, G: nx.Graph, c: int, competition_level: float):
         pass
 
     def init(self, G: nx.Graph):
@@ -66,12 +66,12 @@ class LabeledComponentUnfolding:
         for c in self.classes:
             self.n[c] = self.n0(G, c)
             self.N[c] = self.N0(G, c)
-            self.delta[c] = self.delta0(G, self.comet)
+            self.delta[c] = self.delta0(G, c, self.competition_level)
 
     def step(self, G: nx.Graph, t: int):
         for c in self.classes:
-            P = self.probility_function(G)
-            g = self.G(G, self.N, self.compet)
+            P = self.probability_function(G)
+            g = self.G(G, self.N, self.competition_level)
             self.N[c] = self.N0(G, c)
             self.n[c] = self.n[c] @ P
             self.delta[c] += self.N[c]
