@@ -47,6 +47,9 @@ class LabeledComponentUnfolding:
         self.max_iter = max_iter
         self.n_classes = n_classes
         self.classes = list(range(1, n_classes + 1))
+        self.n: np.ndarray
+        self.N: np.ndarray
+        self.delta: np.ndarray
 
     def n0(self, G: nx.Graph, c: int):
         pass
@@ -55,6 +58,9 @@ class LabeledComponentUnfolding:
         pass
 
     def delta0(self, G: nx.Graph, c: int, competition_level: float):
+        pass
+
+    def g(self, G: nx.Graph, N, competition_level: float):
         pass
 
     def init(self, G: nx.Graph):
@@ -70,10 +76,10 @@ class LabeledComponentUnfolding:
 
     def step(self, G: nx.Graph, t: int):
         for c in self.classes:
-            P = self.probability_function(G)
-            g = self.G(G, self.N, self.competition_level)
+            P = self.probability_function(G, self.N)
+            g_c = self.g(G, self.N, self.competition_level)
             self.N[c] = self.N0(G, c)
-            self.n[c] = self.n[c] @ P
+            self.n[c] = self.n[c] @ P + g_c
             self.delta[c] += self.N[c]
 
     def fit_predict(self, G: nx.Graph) -> nx.Graph:
@@ -89,16 +95,21 @@ class LabeledComponentUnfolding:
     def unfold(self, G: nx.Graph) -> List[nx.Graph]:
         pass
 
-    def current_relative_subordination(self, node, label):
+    def current_relative_subordination(
+        self,
+        G: nx.Graph,
+        node: int,
+        label: int
+    ):
         pass
 
-    def current_directed_domination(self, node, label):
+    def current_directed_domination(self, G: nx.Graph, node: int, label: int):
         pass
 
-    def cumulative_domination(self, node, label):
+    def cumulative_domination(self, G: nx.Graph, node: int, label: int):
         pass
 
-    def subnetwork_of_class(self, label):
+    def subnetwork_of_class(self, G: nx.Graph, label: int) -> nx.Graph:
         pass
 
     def probability_function(self, G: nx.Graph, N: np.ndarray) -> np.ndarray:

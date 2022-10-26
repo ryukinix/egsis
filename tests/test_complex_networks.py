@@ -1,6 +1,5 @@
 import networkx as nx
 import numpy
-import pytest
 
 from egsis import complex_networks
 
