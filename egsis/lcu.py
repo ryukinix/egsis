@@ -17,8 +17,7 @@ class LabeledComponentUnfolding:
     ----------
     n_classes : int
          Number of classes of a given problem. Use n_classes=2 for binary
-         classification, for instance.
-
+         classification, for instance
     competition_level : float
          (lambda) varies between 0 and 1.
           0 means random walk and 1 max competition (recommended).
