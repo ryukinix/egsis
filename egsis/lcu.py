@@ -49,6 +49,7 @@ class LabeledComponentUnfolding:
         self.n: np.ndarray
         self.N: np.ndarray
         self.delta: np.ndarray
+        self.iterations = 0
 
     def n0(self, G: nx.Graph, c: int):
         """Row with active particles by vertex n_i[c]"""
@@ -89,6 +90,11 @@ class LabeledComponentUnfolding:
         return result
 
     def p(self, G: nx.graph, i: int, j: int, c: int) -> float:
+        """Individual probability of walk and survival of specific node
+
+        Simulate particle survival + walk probability of class c going
+        from v_i to v_j.
+        """
         # FIXME: set the case when labeled node with different class c
         # result should be p=0 (sink case, absorption)
 
@@ -112,11 +118,13 @@ class LabeledComponentUnfolding:
         return P
 
     def g(self, G: nx.Graph, c: int) -> np.ndarray:
+        """Auxiliar function to compute new particles"""
         n0_sum = np.sum(self.n0(G, c).flatten())
         n_sum = np.sum(self.n[c].flatten())
         return self.P[c] * max(0, n0_sum - n_sum)
 
     def init(self, G: nx.Graph):
+        """Initialize the LCU algorithm"""
         C = self.n_classes
         i = j = G.number_of_nodes
         self.n = np.zeros(shape=(C, i))
@@ -125,30 +133,45 @@ class LabeledComponentUnfolding:
         for c in self.classes:
             self.n[c] = self.n0(G, c)
             self.N[c] = self.N0(G, c)
-            self.delta[c] = self.delta0(G, c, self.competition_level)
+            self.delta[c] = self.delta0(G, c)
 
     def step(self, G: nx.Graph):
+        """Execute iteration of LCU algorithm"""
         for c in self.classes:
-            self.P = self.probability(G, self.N)
-            g_c = self.g(G, self.N, c)
+            self.P = self.probability(G)
+            g_c = self.g(G, c)
             self.N[c] = self.N0(G, c)
             self.n[c] = self.n[c] @ self.P + g_c
             self.delta[c] += self.N[c]
 
-    def fit_predict(self, G: nx.Graph) -> nx.Graph:
+    def fit_predict(self, G: nx.Graph) -> List[nx.Graph]:
         """Fit complex network and predict new unlabeled data points.
 
         Each vertex of the complex_network should contains the
         label (if it's labeled) and it's features.
+
+        Notes
+        -----
+        About the underlying Graph data structure and metadata:
+
+        The label are stored at attribute 'label' at each node.
+        Features are stored at attribute 'features' at each node.
+        Weight of edges are stored at attribute 'weight' at each edge.
+
+        Returns
+        -------
+        List of subgraphs containing the prediction for each class.
+        They are ordered by class, which means: c=1 -> List[0]
         """
         self.init(G)
-        for t in range(self.max_iter):
-            self.step(G, t)
+        for _ in range(self.max_iter):
+            self.step(G)
+            self.iterations += 1
         return self.unfold(G)
 
     def unfold(self, G: nx.Graph) -> List[nx.Graph]:
         return [
-            self.subnetwork_of_class(G, label=c)
+            self.subnetwork_of_class(G, c)
             for c in self.classes
         ]
 
@@ -162,7 +185,7 @@ class LabeledComponentUnfolding:
         edges_subnetwork = [
             (i, j)
             for (i, j) in G.edges
-            if np.argmax(domination[:, i, j]) + 1 == c
+            if np.argmax(domination[:, i, j], axis=0) + 1 == c
         ]
         sub_graph.add_edges_from(edges=edges_subnetwork)
 
