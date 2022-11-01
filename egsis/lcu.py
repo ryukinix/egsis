@@ -51,16 +51,70 @@ class LabeledComponentUnfolding:
         self.delta: np.ndarray
 
     def n0(self, G: nx.Graph, c: int):
-        pass
+        """Row with active particles by vertex n_i[c]"""
+        nodes = G.number_of_nodes
+        return np.zeros(shape=(nodes, nodes))
 
     def N0(self, G: nx.Graph, c: int):
-        pass
+        """Row with current directed domination n_ij[c]
 
-    def delta0(self, G: nx.Graph, c: int, competition_level: float):
-        pass
+        Number of particles with label=c which moved from v_i to
+        v_j in the current time.
+        """
+        nodes = G.number_of_nodes
+        return np.zeros(shape=(nodes, nodes))
 
-    def g(self, G: nx.Graph, N, competition_level: float):
-        pass
+    def delta0(self, G: nx.Graph, c: int):
+        """Row with cumulative domination delta_ij[c]
+
+        Number of particles with label=c which moved from v_i to
+        v_j until now.
+        """
+        nodes = G.number_of_nodes
+        return np.zeros(shape=(nodes, nodes))
+
+    def sigma(self, G: nx.Graph, i: int, j: int, c: int) -> float:
+        """Matrix with current relative domination sigma_ij[c]
+
+        Number of particles with label=c which moved from v_i to
+        v_j in the current time.
+        """
+        S = np.sum((self.N + self.N.T).flatten())
+        result: float
+        if S < 0:
+            result = 1 - (1 / self.n_classes)
+        else:
+            result = 1 - (self.N[c] + self.N[c].T) / S
+
+        return result
+
+    def p(self, G: nx.graph, i: int, j: int, c: int) -> float:
+        # FIXME: set the case when labeled node with different class c
+        # result should be p=0 (sink case, absorption)
+
+        edge_weight = G.edges[i, j]
+        total = sum(G.edges[i, x] for x in G.neighbors(i))
+        walk = edge_weight / total
+        survival = 1 - self.competition_level * self.sigma(G, i, j, c)
+
+        return walk * survival
+
+    def probability(self, G: nx.Graph) -> np.ndarray:
+        """Matrix with probabilities of particle survival"""
+        P = np.zeros(shape=self.n.shape)
+        C, nodes, _ = P.shape
+        # TODO: how to optimize that?
+        for c in range(C):
+            for i in range(nodes):
+                for j in range(nodes):
+                    P[c, i, j] = self.p(G, i, j, c)
+
+        return P
+
+    def g(self, G: nx.Graph, c: int) -> np.ndarray:
+        n0_sum = np.sum(self.n0(G, c).flatten())
+        n_sum = np.sum(self.n[c].flatten())
+        return self.P[c] * max(0, n0_sum - n_sum)
 
     def init(self, G: nx.Graph):
         C = self.n_classes
@@ -73,12 +127,12 @@ class LabeledComponentUnfolding:
             self.N[c] = self.N0(G, c)
             self.delta[c] = self.delta0(G, c, self.competition_level)
 
-    def step(self, G: nx.Graph, t: int):
+    def step(self, G: nx.Graph):
         for c in self.classes:
-            P = self.probability_function(G, self.N)
-            g_c = self.g(G, self.N, self.competition_level)
+            self.P = self.probability(G, self.N)
+            g_c = self.g(G, self.N, c)
             self.N[c] = self.N0(G, c)
-            self.n[c] = self.n[c] @ P + g_c
+            self.n[c] = self.n[c] @ self.P + g_c
             self.delta[c] += self.N[c]
 
     def fit_predict(self, G: nx.Graph) -> nx.Graph:
@@ -90,26 +144,26 @@ class LabeledComponentUnfolding:
         self.init(G)
         for t in range(self.max_iter):
             self.step(G, t)
+        return self.unfold(G)
 
     def unfold(self, G: nx.Graph) -> List[nx.Graph]:
-        pass
+        return [
+            self.subnetwork_of_class(G, label=c)
+            for c in self.classes
+        ]
 
-    def current_relative_subordination(
-        self,
-        G: nx.Graph,
-        node: int,
-        label: int
-    ):
-        pass
+    def subnetwork_of_class(self, G: nx.Graph, c: int) -> nx.Graph:
+        sub_graph = nx.Graph()
+        sub_graph.add_nodes_from(G.nodes)
+        domination = self.delta.copy()
+        for c in self.classes:
+            domination[c] = domination[c] + domination[c].T
+        # FIXME: wrong application of argmax
+        edges_subnetwork = [
+            (i, j)
+            for (i, j) in G.edges
+            if np.argmax(domination[:, i, j]) + 1 == c
+        ]
+        sub_graph.add_edges_from(edges=edges_subnetwork)
 
-    def current_directed_domination(self, G: nx.Graph, node: int, label: int):
-        pass
-
-    def cumulative_domination(self, G: nx.Graph, node: int, label: int):
-        pass
-
-    def subnetwork_of_class(self, G: nx.Graph, label: int) -> nx.Graph:
-        pass
-
-    def probability_function(self, G: nx.Graph, N: np.ndarray) -> np.ndarray:
-        pass
+        return sub_graph
