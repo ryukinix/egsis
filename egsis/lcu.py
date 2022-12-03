@@ -113,7 +113,7 @@ class LabeledComponentUnfolding:
         """
         S = np.sum((self.N[c] + self.N[c].T).flatten())
         result: float
-        if S < 0:
+        if S <= 0:
             result = 1 - (1 / self.n_classes)
         else:
             result = 1 - (self.N[c][i][j] + self.N[c][j][i]) / S
