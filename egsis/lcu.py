@@ -128,6 +128,9 @@ class LabeledComponentUnfolding:
         """
         # FIXME: set the case when labeled node with different class c
         # result should be p=0 (sink case, absorption)
+        if label := G.nodes[i].get("label"):
+            if label != c:
+                return 0
 
         edge_weight = G.edges[i, j]["weight"]
         total = sum(G.edges[i, x]["weight"] for x in G.neighbors(i))
