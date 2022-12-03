@@ -178,6 +178,14 @@ requires_python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 summary = "XML bomb protection for Python stdlib modules"
 
 [[package]]
+name = "deprecation"
+version = "2.1.0"
+summary = "A library to handle automated deprecations"
+dependencies = [
+    "packaging",
+]
+
+[[package]]
 name = "entrypoints"
 version = "0.4"
 requires_python = ">=3.6"
@@ -285,6 +293,19 @@ version = "0.2.0"
 summary = "Vestigial utilities from IPython"
 
 [[package]]
+name = "ipywidgets"
+version = "8.0.2"
+requires_python = ">=3.7"
+summary = "Jupyter interactive widgets"
+dependencies = [
+    "ipykernel>=4.5.1",
+    "ipython>=6.1.0",
+    "jupyterlab-widgets~=3.0",
+    "traitlets>=4.3.1",
+    "widgetsnbextension~=4.0",
+]
+
+[[package]]
 name = "jedi"
 version = "0.18.1"
 requires_python = ">=3.6"
@@ -340,6 +361,32 @@ summary = "Jupyter core package. A base package on which Jupyter projects rely."
 dependencies = [
     "pywin32>=1.0; sys_platform == \"win32\" and platform_python_implementation != \"PyPy\"",
     "traitlets",
+]
+
+[[package]]
+name = "jupyter-innotater"
+version = "0.3.1"
+requires_python = ">=3.6"
+summary = "An Inline Data Annotator for Jupyter"
+dependencies = [
+    "ipywidgets>=7.6.5",
+    "jupyter-packaging",
+    "jupyterlab~=3.0",
+    "numpy>=1.4.0",
+    "pypng>=0.0.19",
+]
+
+[[package]]
+name = "jupyter-packaging"
+version = "0.12.3"
+requires_python = ">=3.7"
+summary = "Jupyter Packaging Utilities."
+dependencies = [
+    "deprecation",
+    "packaging",
+    "setuptools>=60.2.0",
+    "tomlkit",
+    "wheel",
 ]
 
 [[package]]
@@ -404,6 +451,12 @@ dependencies = [
     "packaging",
     "requests",
 ]
+
+[[package]]
+name = "jupyterlab-widgets"
+version = "3.0.3"
+requires_python = ">=3.7"
+summary = "Jupyter interactive widgets for JupyterLab"
 
 [[package]]
 name = "kiwisolver"
@@ -733,10 +786,26 @@ requires_python = ">=3.6"
 summary = "Pygments is a syntax highlighting package written in Python."
 
 [[package]]
+name = "pygraphviz"
+version = "1.10"
+requires_python = ">=3.8"
+summary = "Python interface to Graphviz"
+
+[[package]]
+name = "pygraphviz-bin"
+version = "0.0.1.2255565199"
+summary = "Pre-compiled GraphViz wrapped in Python"
+
+[[package]]
 name = "pyparsing"
 version = "3.0.9"
 requires_python = ">=3.6.8"
 summary = "pyparsing module - Classes and methods to define and execute parsing grammars"
+
+[[package]]
+name = "pypng"
+version = "0.20220715.0"
+summary = "Pure Python library for saving and loading PNG images"
 
 [[package]]
 name = "pyrsistent"
@@ -810,7 +879,7 @@ summary = "Python for Window Extensions"
 name = "pywinpty"
 version = "2.0.7"
 requires_python = ">=3.7"
-summary = ""
+summary = "Pseudo terminal support for Windows from Python."
 
 [[package]]
 name = "pyzmq"
@@ -863,6 +932,12 @@ dependencies = [
 name = "send2trash"
 version = "1.8.0"
 summary = "Send file to trash natively under Mac OS X, Windows and Linux."
+
+[[package]]
+name = "setuptools"
+version = "65.6.3"
+requires_python = ">=3.7"
+summary = "Easily download, build, install, upgrade, and uninstall Python packages"
 
 [[package]]
 name = "six"
@@ -928,6 +1003,12 @@ requires_python = ">=3.7"
 summary = "A lil' TOML parser"
 
 [[package]]
+name = "tomlkit"
+version = "0.11.6"
+requires_python = ">=3.6"
+summary = "Style preserving TOML library"
+
+[[package]]
 name = "tornado"
 version = "6.2"
 requires_python = ">= 3.7"
@@ -977,6 +1058,18 @@ requires_python = ">=3.7"
 summary = "WebSocket client for Python with low level API options"
 
 [[package]]
+name = "wheel"
+version = "0.38.4"
+requires_python = ">=3.7"
+summary = "A built-package format for Python"
+
+[[package]]
+name = "widgetsnbextension"
+version = "4.0.3"
+requires_python = ">=3.7"
+summary = "Jupyter interactive widgets for Jupyter Notebook"
+
+[[package]]
 name = "zipp"
 version = "3.8.1"
 requires_python = ">=3.7"
@@ -984,7 +1077,7 @@ summary = "Backport of pathlib-compatible object wrapper for zip files"
 
 [metadata]
 lock_version = "4.0"
-content_hash = "sha256:c27a175cd3498e1f955d354fe1752c66c4d1792abcac1409064ee457123bd5cc"
+content_hash = "sha256:bf531e3a3f7f4b2797ea6e724398aff99c50485cdc69f550c2e8afe92eb83984"
 
 [metadata.files]
 "anyio 3.6.1" = [
@@ -1241,6 +1334,10 @@ content_hash = "sha256:c27a175cd3498e1f955d354fe1752c66c4d1792abcac1409064ee4571
     {url = "https://files.pythonhosted.org/packages/07/6c/aa3f2f849e01cb6a001cd8554a88d4c77c5c1a31c95bdf1cf9301e6d9ef4/defusedxml-0.7.1-py2.py3-none-any.whl", hash = "sha256:a352e7e428770286cc899e2542b6cdaedb2b4953ff269a210103ec58f6198a61"},
     {url = "https://files.pythonhosted.org/packages/0f/d5/c66da9b79e5bdb124974bfe172b4daf3c984ebd9c2a06e2b8a4dc7331c72/defusedxml-0.7.1.tar.gz", hash = "sha256:1bb3032db185915b62d7c6209c5a8792be6a32ab2fedacc84e01b52c51aa3e69"},
 ]
+"deprecation 2.1.0" = [
+    {url = "https://files.pythonhosted.org/packages/02/c3/253a89ee03fc9b9682f1541728eb66db7db22148cd94f89ab22528cd1e1b/deprecation-2.1.0-py2.py3-none-any.whl", hash = "sha256:a10811591210e1fb0e768a8c25517cabeabcba6f0bf96564f8ff45189f90b14a"},
+    {url = "https://files.pythonhosted.org/packages/5a/d3/8ae2869247df154b64c1884d7346d412fed0c49df84db635aab2d1c40e62/deprecation-2.1.0.tar.gz", hash = "sha256:72b3bde64e5d778694b0cf68178aed03d15e15477116add3fb773e581f9518ff"},
+]
 "entrypoints 0.4" = [
     {url = "https://files.pythonhosted.org/packages/35/a8/365059bbcd4572cbc41de17fd5b682be5868b218c3c5479071865cab9078/entrypoints-0.4-py3-none-any.whl", hash = "sha256:f174b5ff827504fd3cd97cc3f8649f3693f51538c7e4bdf3ef002c8429d42f9f"},
     {url = "https://files.pythonhosted.org/packages/ea/8d/a7121ffe5f402dc015277d2d31eb82d2187334503a011c18f2e78ecbb9b2/entrypoints-0.4.tar.gz", hash = "sha256:b706eddaa9218a19ebcd67b56818f05bb27589b1ca9e8d797b74affad4ccacd4"},
@@ -1289,6 +1386,10 @@ content_hash = "sha256:c27a175cd3498e1f955d354fe1752c66c4d1792abcac1409064ee4571
     {url = "https://files.pythonhosted.org/packages/e8/69/fbeffffc05236398ebfcfb512b6d2511c622871dca1746361006da310399/ipython_genutils-0.2.0.tar.gz", hash = "sha256:eb2e116e75ecef9d4d228fdc66af54269afa26ab4463042e33785b887c628ba8"},
     {url = "https://files.pythonhosted.org/packages/fa/bc/9bd3b5c2b4774d5f33b2d544f1460be9df7df2fe42f352135381c347c69a/ipython_genutils-0.2.0-py2.py3-none-any.whl", hash = "sha256:72dd37233799e619666c9f639a9da83c34013a73e8bbc79a7a6348d93c61fab8"},
 ]
+"ipywidgets 8.0.2" = [
+    {url = "https://files.pythonhosted.org/packages/81/f7/86ef818eb0ecdd3fc8089209fbd6072243612563048bf5b5738f5bddd95d/ipywidgets-8.0.2.tar.gz", hash = "sha256:08cb75c6e0a96836147cbfdc55580ae04d13e05d26ffbc377b4e1c68baa28b1f"},
+    {url = "https://files.pythonhosted.org/packages/e4/56/990c10ca8751182ace2464cb0e4baafb7087a40c185c9142b9cd18683fac/ipywidgets-8.0.2-py3-none-any.whl", hash = "sha256:1dc3dd4ee19ded045ea7c86eb273033d238d8e43f9e7872c52d092683f263891"},
+]
 "jedi 0.18.1" = [
     {url = "https://files.pythonhosted.org/packages/b3/0e/836f12ec50075161e365131f13f5758451645af75c2becf61c6351ecec39/jedi-0.18.1-py2.py3-none-any.whl", hash = "sha256:637c9635fcf47945ceb91cd7f320234a7be540ded6f3e99a50cb6febdfd1ba8d"},
     {url = "https://files.pythonhosted.org/packages/c2/25/273288df952e07e3190446efbbb30b0e4871a0d63b4246475f3019d4f55e/jedi-0.18.1.tar.gz", hash = "sha256:74137626a64a99c8eb6ae5832d99b3bdd7d29a3850fe2aa80a4126b2a7d949ab"},
@@ -1313,6 +1414,14 @@ content_hash = "sha256:c27a175cd3498e1f955d354fe1752c66c4d1792abcac1409064ee4571
     {url = "https://files.pythonhosted.org/packages/66/5f/32ee101e07d5ece26876f13526b16179525e19f4e460f8085e9ef8e54cff/jupyter_core-4.11.1-py3-none-any.whl", hash = "sha256:715e22bb6cc7db3718fddfac1f69f1c7e899ca00e42bdfd4bf3705452b9fd84a"},
     {url = "https://files.pythonhosted.org/packages/e4/e0/13fc7f8b72f39d87c1c32918a99475911b7b2f28c1a9f2734a5ab5cc35ef/jupyter_core-4.11.1.tar.gz", hash = "sha256:2e5f244d44894c4154d06aeae3419dd7f1b0ef4494dc5584929b398c61cfd314"},
 ]
+"jupyter-innotater 0.3.1" = [
+    {url = "https://files.pythonhosted.org/packages/18/c6/5f3e454815c9b206a411fef43b8be2838f6e427a85eb83d031ee46bea03f/jupyter_innotater-0.3.1.tar.gz", hash = "sha256:0e3ec9acd8d28c672b8fb50348bf15437cd974de31aa152f826c5575c8ce091e"},
+    {url = "https://files.pythonhosted.org/packages/77/0d/9e1ce6566744f904157c9b872488538f3570eaf04dbff3596ac1d9399263/jupyter_innotater-0.3.1-py3-none-any.whl", hash = "sha256:e952d3a852defc13eef91df7575d1fb59244b05aeee613bf0bb1dd27728bab85"},
+]
+"jupyter-packaging 0.12.3" = [
+    {url = "https://files.pythonhosted.org/packages/25/c5/b0e154e6403c6790bb1e66acddf9787296a8196f5b14f4bb9e4c92b6734e/jupyter_packaging-0.12.3.tar.gz", hash = "sha256:9d9b2b63b97ffd67a8bc5391c32a421bc415b264a32c99e4d8d8dd31daae9cf4"},
+    {url = "https://files.pythonhosted.org/packages/dd/cb/6c4c3e2219c2fe6fff6f9d4bda48da21951c3bd8f39b443a586f13173ea0/jupyter_packaging-0.12.3-py3-none-any.whl", hash = "sha256:c1a376b23bcaced6dfc9ab0e924b015ce11552a1a5bccf783c6476957c538348"},
+]
 "jupyter-server 1.18.1" = [
     {url = "https://files.pythonhosted.org/packages/36/6c/fe8c416a9f1a64b9296918e9096b68da81fc50e5fefba8077841c22d6691/jupyter_server-1.18.1-py3-none-any.whl", hash = "sha256:022759b09c96a4e2feb95de59ce4283e04e17782efe197b91d23a47521609b77"},
     {url = "https://files.pythonhosted.org/packages/5b/6e/01af30a3e12d2f8eda1405ca8710442f1e7d05d30f8abbfca3b1f0375ce0/jupyter_server-1.18.1.tar.gz", hash = "sha256:2b72fc595bccae292260aad8157a0ead8da2c703ec6ae1bb7b36dbad0e267ea7"},
@@ -1328,6 +1437,10 @@ content_hash = "sha256:c27a175cd3498e1f955d354fe1752c66c4d1792abcac1409064ee4571
 "jupyterlab-server 2.15.1" = [
     {url = "https://files.pythonhosted.org/packages/82/ee/6609e1f574cceb4967a5af381031501944c5af2950b3806b2c3cceccb511/jupyterlab_server-2.15.1-py3-none-any.whl", hash = "sha256:5e04008a98bfb510471b8b8a7059f7cdbb1797e1f255657f39ea3d838ba00bf6"},
     {url = "https://files.pythonhosted.org/packages/c9/12/19935f704a8b2e45d1ce8dfd1253e5651ce16d0fe7865516261eb451dcd0/jupyterlab_server-2.15.1.tar.gz", hash = "sha256:305313970e131c590cf77bb6b8ca7e98591bc304111e8d103bc91d212e94796f"},
+]
+"jupyterlab-widgets 3.0.3" = [
+    {url = "https://files.pythonhosted.org/packages/19/99/66292214fa2f920ceec0a8a6f6d1844016e2e7a9b6c498bda380fa945015/jupyterlab_widgets-3.0.3.tar.gz", hash = "sha256:c767181399b4ca8b647befe2d913b1260f51bf9d8ef9b7a14632d4c1a7b536bd"},
+    {url = "https://files.pythonhosted.org/packages/d8/52/2f4b8f5975312fb58f4eacab2e6f6cfd2efd05704514a60a151a4e69d608/jupyterlab_widgets-3.0.3-py3-none-any.whl", hash = "sha256:6aa1bc0045470d54d76b9c0b7609a8f8f0087573bae25700a370c11f82cb38c8"},
 ]
 "kiwisolver 1.4.4" = [
     {url = "https://files.pythonhosted.org/packages/03/93/11790e8e81b89acd3a1c8a6b501f8a05b1c41beee0990582699cdda29557/kiwisolver-1.4.4-cp37-cp37m-win_amd64.whl", hash = "sha256:03baab2d6b4a54ddbb43bba1a3a2d1627e82d205c5cf8f4c924dc49284b87166"},
@@ -1825,9 +1938,22 @@ content_hash = "sha256:c27a175cd3498e1f955d354fe1752c66c4d1792abcac1409064ee4571
     {url = "https://files.pythonhosted.org/packages/4f/82/672cd382e5b39ab1cd422a672382f08a1fb3d08d9e0c0f3707f33a52063b/Pygments-2.13.0-py3-none-any.whl", hash = "sha256:f643f331ab57ba3c9d89212ee4a2dabc6e94f117cf4eefde99a0574720d14c42"},
     {url = "https://files.pythonhosted.org/packages/e0/ef/5905cd3642f2337d44143529c941cc3a02e5af16f0f65f81cbef7af452bb/Pygments-2.13.0.tar.gz", hash = "sha256:56a8508ae95f98e2b9bdf93a6be5ae3f7d8af858b43e02c5a2ff083726be40c1"},
 ]
+"pygraphviz 1.10" = [
+    {url = "https://files.pythonhosted.org/packages/ee/7e/7366c082f959db7ee18a16fc38dc594158ede65ca789bef87751ed5130c7/pygraphviz-1.10.zip", hash = "sha256:457e093a888128903251a266a8cc16b4ba93f3f6334b3ebfed92c7471a74d867"},
+]
+"pygraphviz-bin 0.0.1.2255565199" = [
+    {url = "https://files.pythonhosted.org/packages/1d/41/594fb4ad4e372623f2c53c8e643c9ac40318a022bfcfe2292e161811e6f0/pygraphviz_bin-0.0.1.2255565199-cp38-cp38-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:1b30b357b82f158de9ca7b327e80bdc5f2a701562eb37bd16b0e8d2bc5813680"},
+    {url = "https://files.pythonhosted.org/packages/44/89/3465565884b4f7bf4d608d678340f12f6a8c517fe1edb6809311d33870bb/pygraphviz_bin-0.0.1.2255565199-cp39-cp39-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:61f9f69c41a37e2767fecb66578aee03a5727ac6ed3e2b95fa9315f95e7ce44a"},
+    {url = "https://files.pythonhosted.org/packages/7b/5d/282cd9fe1f290449c8496157f6fff460413ff17053437887a736afd6dd5f/pygraphviz_bin-0.0.1.2255565199-cp36-cp36m-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:cd4eecaaec4bbaf974588bbb081f9db7cae41a4221765974d0bb898359d44a55"},
+    {url = "https://files.pythonhosted.org/packages/9f/6a/3c1ce6941328a3a8641aa1c25e665543ab9de42dc18775e8c6b353131cdd/pygraphviz_bin-0.0.1.2255565199-cp37-cp37m-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:32636eb5efe056985c9d3ee5b2c6143008b004ae270a64e42eb384189bcde803"},
+]
 "pyparsing 3.0.9" = [
     {url = "https://files.pythonhosted.org/packages/6c/10/a7d0fa5baea8fe7b50f448ab742f26f52b80bfca85ac2be9d35cdd9a3246/pyparsing-3.0.9-py3-none-any.whl", hash = "sha256:5026bae9a10eeaefb61dab2f09052b9f4307d44aee4eda64b309723d8d206bbc"},
     {url = "https://files.pythonhosted.org/packages/71/22/207523d16464c40a0310d2d4d8926daffa00ac1f5b1576170a32db749636/pyparsing-3.0.9.tar.gz", hash = "sha256:2b020ecf7d21b687f219b71ecad3631f644a47f01403fa1d1036b0c6416d70fb"},
+]
+"pypng 0.20220715.0" = [
+    {url = "https://files.pythonhosted.org/packages/3e/b9/3766cc361d93edb2ce81e2e1f87dd98f314d7d513877a342d31b30741680/pypng-0.20220715.0-py3-none-any.whl", hash = "sha256:4a43e969b8f5aaafb2a415536c1a8ec7e341cd6a3f957fd5b5f32a4cfeed902c"},
+    {url = "https://files.pythonhosted.org/packages/93/cd/112f092ec27cca83e0516de0a3368dbd9128c187fb6b52aaaa7cde39c96d/pypng-0.20220715.0.tar.gz", hash = "sha256:739c433ba96f078315de54c0db975aee537cbc3e1d0ae4ed9aab0ca1e427e2c1"},
 ]
 "pyrsistent 0.18.1" = [
     {url = "https://files.pythonhosted.org/packages/15/fa/64ed4c29d36df26906f03a1fb360056e3cbc063b00446f3663252bdd175a/pyrsistent-0.18.1-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:f87cc2863ef33c709e237d4b5f4502a62a00fab450c9e020892e8e2ede5847f5"},
@@ -2064,6 +2190,10 @@ content_hash = "sha256:c27a175cd3498e1f955d354fe1752c66c4d1792abcac1409064ee4571
     {url = "https://files.pythonhosted.org/packages/47/26/3435896d757335ea53dce5abf8d658ca80757a7a06258451b358f10232be/Send2Trash-1.8.0-py3-none-any.whl", hash = "sha256:f20eaadfdb517eaca5ce077640cb261c7d2698385a6a0f072a4a5447fd49fa08"},
     {url = "https://files.pythonhosted.org/packages/49/2c/d990b8d5a7378dde856f5a82e36ed9d6061b5f2d00f39dc4317acd9538b4/Send2Trash-1.8.0.tar.gz", hash = "sha256:d2c24762fd3759860a0aff155e45871447ea58d2be6bdd39b5c8f966a0c99c2d"},
 ]
+"setuptools 65.6.3" = [
+    {url = "https://files.pythonhosted.org/packages/b6/21/cb9a8d0b2c8597c83fce8e9c02884bce3d4951e41e807fc35791c6b23d9a/setuptools-65.6.3.tar.gz", hash = "sha256:a7620757bf984b58deaf32fc8a4577a9bbc0850cf92c20e1ce41c38c19e5fb75"},
+    {url = "https://files.pythonhosted.org/packages/ef/e3/29d6e1a07e8d90ace4a522d9689d03e833b67b50d1588e693eec15f26251/setuptools-65.6.3-py3-none-any.whl", hash = "sha256:57f6f22bde4e042978bcd50176fdb381d7c21a9efa4041202288d3737a0c6a54"},
+]
 "six 1.16.0" = [
     {url = "https://files.pythonhosted.org/packages/71/39/171f1c67cd00715f190ba0b100d606d440a28c93c7714febeca8b79af85e/six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
     {url = "https://files.pythonhosted.org/packages/d9/5a/e7c31adbe875f2abbb91bd84cf2dc52d792b5a01506781dbcf25c91daf11/six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
@@ -2095,6 +2225,10 @@ content_hash = "sha256:c27a175cd3498e1f955d354fe1752c66c4d1792abcac1409064ee4571
 "tomli 2.0.1" = [
     {url = "https://files.pythonhosted.org/packages/97/75/10a9ebee3fd790d20926a90a2547f0bf78f371b2f13aa822c759680ca7b9/tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},
     {url = "https://files.pythonhosted.org/packages/c0/3f/d7af728f075fb08564c5949a9c95e44352e23dee646869fa104a3b2060a3/tomli-2.0.1.tar.gz", hash = "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"},
+]
+"tomlkit 0.11.6" = [
+    {url = "https://files.pythonhosted.org/packages/2b/df/971fa5db3250bb022105d17f340339370f73d502e65e687a94ca1a4c4b1f/tomlkit-0.11.6-py3-none-any.whl", hash = "sha256:07de26b0d8cfc18f871aec595fda24d95b08fef89d147caa861939f37230bf4b"},
+    {url = "https://files.pythonhosted.org/packages/ff/04/58b4c11430ed4b7b8f1723a5e4f20929d59361e9b17f0872d69681fd8ffd/tomlkit-0.11.6.tar.gz", hash = "sha256:71b952e5721688937fb02cf9d354dbcf0785066149d2855e44531ebdd2b65d73"},
 ]
 "tornado 6.2" = [
     {url = "https://files.pythonhosted.org/packages/11/30/ac70f5c5f03cf1cd0ae8199c80382387a9fe57e8f68853d5c9527c0219e5/tornado-6.2-cp37-abi3-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:b8150f721c101abdef99073bf66d3903e292d851bee51910839831caba341a75"},
@@ -2136,6 +2270,14 @@ content_hash = "sha256:c27a175cd3498e1f955d354fe1752c66c4d1792abcac1409064ee4571
 "websocket-client 1.4.1" = [
     {url = "https://files.pythonhosted.org/packages/83/b8/95c2512818d6ddb9b97f4163e915b2afe2db42b620270aa59c5ee0b47245/websocket_client-1.4.1-py3-none-any.whl", hash = "sha256:398909eb7e261f44b8f4bd474785b6ec5f5b499d4953342fe9755e01ef624090"},
     {url = "https://files.pythonhosted.org/packages/99/11/01fe7ebcb7545a1990c53c11f31230afe1388b0b34256e3fd20e49482245/websocket-client-1.4.1.tar.gz", hash = "sha256:f9611eb65c8241a67fb373bef040b3cf8ad377a9f6546a12b620b6511e8ea9ef"},
+]
+"wheel 0.38.4" = [
+    {url = "https://files.pythonhosted.org/packages/a2/b8/6a06ff0f13a00fc3c3e7d222a995526cbca26c1ad107691b6b1badbbabf1/wheel-0.38.4.tar.gz", hash = "sha256:965f5259b566725405b05e7cf774052044b1ed30119b5d586b2703aafe8719ac"},
+    {url = "https://files.pythonhosted.org/packages/bd/7c/d38a0b30ce22fc26ed7dbc087c6d00851fb3395e9d0dac40bec1f905030c/wheel-0.38.4-py3-none-any.whl", hash = "sha256:b60533f3f5d530e971d6737ca6d58681ee434818fab630c83a734bb10c083ce8"},
+]
+"widgetsnbextension 4.0.3" = [
+    {url = "https://files.pythonhosted.org/packages/18/21/bb36c3760ec170c11d2bb7449ec3a3f9e6c5561949a80ef4fab799dda221/widgetsnbextension-4.0.3.tar.gz", hash = "sha256:34824864c062b0b3030ad78210db5ae6a3960dfb61d5b27562d6631774de0286"},
+    {url = "https://files.pythonhosted.org/packages/d7/ae/ee70b20dc836d935a9a6483339854c09d8752e55a8104668e2426cf3baf3/widgetsnbextension-4.0.3-py3-none-any.whl", hash = "sha256:7f3b0de8fda692d31ef03743b598620e31c2668b835edbd3962d080ccecf31eb"},
 ]
 "zipp 3.8.1" = [
     {url = "https://files.pythonhosted.org/packages/3b/e3/fb79a1ea5f3a7e9745f688855d3c673f2ef7921639a380ec76f7d4d83a85/zipp-3.8.1.tar.gz", hash = "sha256:05b45f1ee8f807d0cc928485ca40a07cb491cf092ff587c0df9cb1fd154848d2"},
