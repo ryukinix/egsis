@@ -33,4 +33,6 @@ def test_lcu_sanity_check(graph):
     assert len(sub_networks) == 2
     g1, g2 = sub_networks
     # disjunct sets
-    assert set(g1.nodes) ^ set(g2.nodes) == set()
+    assert set(g1.nodes) ^ set(g2.nodes) != set()
+    assert set(g1.nodes) - set(g2.nodes) != set()
+    assert set(g1.nodes) + set(g2.nodes) == set(graph.nodes)
