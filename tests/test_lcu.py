@@ -26,8 +26,11 @@ def test_lcu_sanity_check(graph):
     """Basic test checking sanity"""
     lcu = LCU(
         n_classes=2,
-        competition_level=1
+        competition_level=1,
+        max_iter=10
     )
     sub_networks = lcu.fit_predict(graph)
-
-    assert sub_networks
+    assert len(sub_networks) == 2
+    g1, g2 = sub_networks
+    # disjunct sets
+    assert set(g1.nodes) ^ set(g2.nodes) == set()
