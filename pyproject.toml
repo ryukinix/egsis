@@ -12,6 +12,7 @@ dependencies = [
     "matplotlib>=3.5.3",
     "networkx>=2.8.6",
     "scipy>=1.9.1",
+    "loguru>=0.6.0",
 ]
 requires-python = ">=3.9,<3.11"
 readme = "README.md"

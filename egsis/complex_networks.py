@@ -5,6 +5,7 @@ import networkx
 
 from egsis import superpixels
 from egsis import features
+from egsis import labeling
 
 
 def complex_network_from_segments(segments: numpy.ndarray) -> networkx.Graph:
@@ -54,10 +55,11 @@ def compute_node_labels(
 ) -> networkx.Graph:
     """Add node label based on superpixel and img pixel labels"""
     for v in graph.nodes:
-        array_mask = segments[segments == v]
-        histogram = numpy.bincount(labels[array_mask])
-        most_occurent_label_at_segment = numpy.argmax(histogram)
-        graph.nodes[v]["label"] = most_occurent_label_at_segment
+        graph.nodes[v]["label"] = labeling.get_superpixel_label(
+            label_matrix=labels,
+            superpixels=segments,
+            superpixel=v
+        )
 
     return graph
 

@@ -3,6 +3,8 @@ from typing import List
 import networkx as nx
 import numpy as np
 
+from loguru import logger
+
 
 class LabeledComponentUnfolding:
 
@@ -54,6 +56,15 @@ class LabeledComponentUnfolding:
         self.n: np.ndarray
         self.N: np.ndarray
         self.delta: np.ndarray
+        hyperparams = ", ".join([
+            f"{k}={v}" for k, v in {
+                "n_classes": n_classes,
+                "competition_level": competition_level,
+                "max_iter": max_iter,
+                "population_size": initial_population_size
+            }.items()
+        ])
+        logger.info(f"hyperparams: {hyperparams}")
 
     def fit_predict(self, G: nx.Graph) -> List[nx.Graph]:
         """Fit complex network and predict new unlabeled data points.
@@ -83,6 +94,10 @@ class LabeledComponentUnfolding:
     @property
     def nodes(self):
         return self.G.number_of_nodes()
+
+    @property
+    def edges(self):
+        return self.G.number_of_edges()
 
     def n0(self, G: nx.Graph):
         """Initial active particles by vertex n_i[c]"""
@@ -128,7 +143,7 @@ class LabeledComponentUnfolding:
         """
         # FIXME: set the case when labeled node with different class c
         # result should be p=0 (sink case, absorption)
-        if label := G.nodes[i].get("label"):
+        if label := G.nodes[j].get("label"):
             if label != c:
                 return 0
 
@@ -170,9 +185,12 @@ class LabeledComponentUnfolding:
         self.n = self.n0(G)
         self.N = self.N0(G)
         self.delta = self.delta0(G)
+        logger.debug(f"Initialized: G=(nodes={self.nodes},edges={self.edges})")
 
     def step(self, G: nx.Graph):
         """Execute iteration of LCU algorithm"""
+        logger.debug(f"iteration={self.iterations+1}/{self.max_iter}")
+        # FIXME: review this loop and the individual functions
         for c in range(self.n_classes):
             self.P = self.probability(G)
             g_c = self.g(G, c)
@@ -180,25 +198,29 @@ class LabeledComponentUnfolding:
             self.N[c] = np.diag(nc_product_pc)
             self.n[c] = nc_product_pc + g_c
             self.delta[c] += self.N[c]
+            # logger.debug(f"self.delta[0] = \n{self.delta[0]}")
+            # logger.debug(f"self.delta[1] = \n{self.delta[1]}")
 
     def unfold(self, G: nx.Graph) -> List[nx.Graph]:
         return [
             self.subnetwork_of_class(G, c)
-            for c in self.classes
+            for c in range(self.n_classes)
         ]
 
     def subnetwork_of_class(self, G: nx.Graph, c: int) -> nx.Graph:
-        sub_graph = nx.Graph()
-        sub_graph.add_nodes_from(G.nodes)
         domination = self.delta.copy()
-        for c in range(self.n_classes):
-            domination[c] = domination[c] + domination[c].T
-        # FIXME: wrong application of argmax
+        for cls in range(self.n_classes):
+            domination[cls] = domination[cls] + domination[cls].T
+        # FIXME: wrong application of argmax, only return edges for
+        # the first class
         edges_subnetwork = [
             (i, j)
-            for (i, j) in G.edges
-            if np.argmax(domination[:, i, j], axis=0) + 1 == c
+            for i, j in G.edges
+            if np.argmax(domination[:, i, j], axis=0) == c
         ]
+        logger.debug(f"class={c} subnetwork: edges={edges_subnetwork}")
+        sub_graph = nx.Graph()
+        sub_graph.add_nodes_from(G.nodes)
         sub_graph.add_edges_from(edges_subnetwork)
 
         return sub_graph
