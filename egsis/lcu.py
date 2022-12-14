@@ -97,8 +97,8 @@ class LabeledComponentUnfolding:
         for _ in range(self.max_iter):
             self.step(G)
             self.iterations += 1
-        logger.debug(f"delta[0] = \n{self.delta[0]}")
-        logger.debug(f"delta[1] = \n{self.delta[1]}")
+        logger.trace(f"delta[0] = \n{self.delta[0]}")
+        logger.trace(f"delta[1] = \n{self.delta[1]}")
         return self.unfold(G)
 
     def init(self, G: nx.Graph):
@@ -128,9 +128,6 @@ class LabeledComponentUnfolding:
         ]
 
     def subnetwork_of_class(self, G: nx.Graph, c: int) -> nx.Graph:
-        # logger.debug(f"delta: \n {domination}")
-        # FIXME: wrong application of argmax, only return edges for
-        # the first class
         edges_subnetwork = []
         for (i, j) in G.edges:
             d = self.delta[:, i, j] + self.delta[:, j, i]
