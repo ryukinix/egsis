@@ -1,9 +1,16 @@
 from typing import List
+from functools import lru_cache
 
 import networkx as nx
 import numpy as np
 
 from loguru import logger
+
+"""lerax - sex 09 dez 2022 13:55:34
+Alguma coisa não está certa... as subnetworks não são disjuntas, a
+função g que gera novas particulas quase sempre está zerada... a
+matriz delta só fica com elementos na diagonal... tem algo errado aqui
+"""
 
 
 class LabeledComponentUnfolding:
@@ -28,6 +35,7 @@ class LabeledComponentUnfolding:
          The time limit parameter controls when the simulation should
          stop; it must be at least as large as the diameter of the network.
 
+
     Reference
     ---------
     Filipe Alves Neto Verri, Paulo Roberto Urio, Liang Zhao: “Network
@@ -41,14 +49,15 @@ class LabeledComponentUnfolding:
         self,
         n_classes: int,
         competition_level: float = 1,
+        scale_particles: float = 100,
         max_iter: int = 500,
-        initial_population_size: int = 50,
     ):
-        assert competition_level > 0 and competition_level <= 1
+        assert 0 <= competition_level <= 1, "Competition lvl should be: (0, 1]"
+        assert n_classes >= 2, "Minimum classes are 2."
         self.competition_level = competition_level
         self.max_iter = max_iter
         self.n_classes = n_classes
-        self.initial_population_size = initial_population_size
+        self.scale_particles = scale_particles
         self.classes = list(range(1, n_classes + 1))
         self.iterations = 0
         self.G: nx.Graph
@@ -61,7 +70,6 @@ class LabeledComponentUnfolding:
                 "n_classes": n_classes,
                 "competition_level": competition_level,
                 "max_iter": max_iter,
-                "population_size": initial_population_size
             }.items()
         ])
         logger.info(f"hyperparams: {hyperparams}")
@@ -89,7 +97,53 @@ class LabeledComponentUnfolding:
         for _ in range(self.max_iter):
             self.step(G)
             self.iterations += 1
+        logger.debug(f"delta[0] = \n{self.delta[0]}")
+        logger.debug(f"delta[1] = \n{self.delta[1]}")
         return self.unfold(G)
+
+    def init(self, G: nx.Graph):
+        """Initialize the LCU algorithm"""
+        self.G = G
+        self.n = self.n0(G)
+        self.N = self.N0(G)
+        self.delta = self.delta0(G)
+        logger.debug(f"Initialized: G=(nodes={self.nodes},edges={self.edges})")
+
+    def step(self, G: nx.Graph):
+        """Execute iteration of LCU algorithm"""
+        logger.info(f"== iteration={self.iterations+1}/{self.max_iter}")
+        # FIXME: review this loop and the individual functions
+        for c in range(self.n_classes):
+            self.P = self.probability(G)
+            g_c = self.g(G, c)
+            nc_product_pc = self.n[c] @ self.P[c]
+            self.N[c] = np.diag(self.n[c]) @ self.P[c]
+            self.n[c] = nc_product_pc + g_c
+            self.delta[c] += self.N[c]
+
+    def unfold(self, G: nx.Graph) -> List[nx.Graph]:
+        return [
+            self.subnetwork_of_class(G, c)
+            for c in range(self.n_classes)
+        ]
+
+    def subnetwork_of_class(self, G: nx.Graph, c: int) -> nx.Graph:
+        # logger.debug(f"delta: \n {domination}")
+        # FIXME: wrong application of argmax, only return edges for
+        # the first class
+        edges_subnetwork = []
+        for (i, j) in G.edges:
+            d = self.delta[:, i, j] + self.delta[:, j, i]
+            if np.argmax(d, axis=0) == c:
+                edges_subnetwork.append((i, j))
+
+        logger.debug(edges_subnetwork)
+        logger.debug(f"class={c+1} subnetwork: edges={len(edges_subnetwork)}")
+        sub_graph = nx.Graph()
+        sub_graph.add_nodes_from(G.nodes)
+        sub_graph.add_edges_from(edges_subnetwork)
+
+        return sub_graph
 
     @property
     def nodes(self):
@@ -99,42 +153,6 @@ class LabeledComponentUnfolding:
     def edges(self):
         return self.G.number_of_edges()
 
-    def n0(self, G: nx.Graph):
-        """Initial active particles by vertex n_i[c]"""
-        nodes = self.nodes
-        particles = np.ones(shape=(self.n_classes, nodes))
-        return particles * self.initial_population_size
-
-    def N0(self, G: nx.Graph):
-        """Initial N with current directed domination n_ij[c]
-        """
-        nodes = self.nodes
-        return np.zeros(shape=(self.n_classes, nodes, nodes))
-
-    def delta0(self, G: nx.Graph):
-        """Row with cumulative domination delta_ij[c]
-
-        Number of particles with label=c which moved from v_i to
-        v_j until now.
-        """
-        nodes = self.nodes
-        return np.zeros(shape=(self.n_classes, nodes, nodes))
-
-    def sigma(self, G: nx.Graph, i: int, j: int, c: int) -> float:
-        """Matrix with current relative domination sigma_ij[c]
-
-        Number of particles with label=c which moved from v_i to
-        v_j in the current time.
-        """
-        S = np.sum((self.N[c] + self.N[c].T).flatten())
-        result: float
-        if S <= 0:
-            result = 1 - (1 / self.n_classes)
-        else:
-            result = 1 - (self.N[c][i][j] + self.N[c][j][i]) / S
-
-        return result
-
     def p(self, G: nx.graph, i: int, j: int, c: int) -> float:
         """Individual probability of walk and survival of specific node
 
@@ -142,10 +160,10 @@ class LabeledComponentUnfolding:
         from v_i to v_j.
         """
         # FIXME: set the case when labeled node with different class c
-        # result should be p=0 (sink case, absorption)
-        if label := G.nodes[j].get("label"):
-            if label != c:
-                return 0
+        # result should be p=0 (sink case, absorption))
+        label = G.nodes[j].get("label", 0)
+        if label > 0 and label != c + 1:
+            return 0
 
         edge_weight = G.edges[i, j]["weight"]
         total = sum(G.edges[i, x]["weight"] for x in G.neighbors(i))
@@ -169,61 +187,68 @@ class LabeledComponentUnfolding:
             G.degree[node] for node in G.nodes
         ]
         total_degree_sum = sum(node_degrees)
+        p = np.array([
+            degree / total_degree_sum if G.nodes[node]["label"] == c + 1 else 0
+            for node, degree in zip(G.nodes, node_degrees)
+        ])
+        # logger.debug(f"p =\n {p}")
+        return p
 
-        return np.array([degree / total_degree_sum for degree in node_degrees])
+    @lru_cache
+    def n0(self, G: nx.Graph) -> np.ndarray:
+        """Initial active particles by vertex n_i[c]"""
+        nodes = self.nodes
+        edges = self.edges
+        population = np.array([G.degree[v] / (2 * edges) for v in G.nodes])
+        labels = np.zeros(shape=(self.n_classes, nodes))
+        logger.debug(f"n0: classes={self.n_classes}, shape={labels.shape}")
+        for node in G.nodes:
+            idx = node - 1
+            label = G.nodes[node].get("label", 0)
+            cls = label - 1
+            if label != 0:
+                labels[cls, idx] = label
+        particles = labels * population * self.scale_particles
+        logger.info(f"n0: {particles}")
+        return particles
+
+    def N0(self, G: nx.Graph):
+        """Initial N with current directed domination n_ij[c]
+        """
+        nodes = self.nodes
+        return np.zeros(shape=(self.n_classes, nodes, nodes))
+
+    def delta0(self, G: nx.Graph):
+        """Row with cumulative domination delta_ij[c]
+
+        Number of particles with label=c which moved from v_i to
+        v_j until now.
+        """
+        nodes = self.nodes
+        return np.zeros(shape=(self.n_classes, nodes, nodes))
+
+    def sigma(self, G: nx.Graph, i: int, j: int, c: int) -> float:
+        """Matrix with current relative domination sigma_ij[c]
+
+        Number of particles with label=c which moved from v_i to
+        v_j in the current time.
+        """
+        S = np.sum((self.N[:, i, j] + self.N[:, j, i].T).flatten())
+        result: float
+        if S <= 0:
+            result = 1 - (1 / self.n_classes)
+        else:
+            result = 1 - ((self.N[c][i][j] + self.N[c][j][i]) / S)
+
+        return result
 
     def g(self, G: nx.Graph, c: int) -> np.ndarray:
         """Auxiliar function to compute new particles"""
-        n0_sum = np.sum(self.n0(G).flatten())
+        n0_sum = np.sum(self.n0(G)[c].flatten())
         n_sum = np.sum(self.n[c].flatten())
         p = self.probability_of_new_particles(G, c)
-        return p * max(0, n0_sum - n_sum)
-
-    def init(self, G: nx.Graph):
-        """Initialize the LCU algorithm"""
-        self.G = G
-        self.n = self.n0(G)
-        self.N = self.N0(G)
-        self.delta = self.delta0(G)
-        logger.debug(f"Initialized: G=(nodes={self.nodes},edges={self.edges})")
-
-    def step(self, G: nx.Graph):
-        """Execute iteration of LCU algorithm"""
-        logger.debug(f"iteration={self.iterations+1}/{self.max_iter}")
-        # FIXME: review this loop and the individual functions
-        for c in range(self.n_classes):
-            self.P = self.probability(G)
-            g_c = self.g(G, c)
-            nc_product_pc = self.n[c] @ self.P[c]
-            self.N[c] = np.diag(nc_product_pc)
-            self.n[c] = nc_product_pc + g_c
-            self.delta[c] += self.N[c]
-            # logger.debug(f"self.delta[0] = \n{self.delta[0]}")
-            # logger.debug(f"self.delta[1] = \n{self.delta[1]}")
-
-    def unfold(self, G: nx.Graph) -> List[nx.Graph]:
-        return [
-            self.subnetwork_of_class(G, c)
-            for c in range(self.n_classes)
-        ]
-
-    def subnetwork_of_class(self, G: nx.Graph, c: int) -> nx.Graph:
-        domination = self.delta.copy()
-        for cls in range(self.n_classes):
-            domination[cls] = domination[cls] + domination[cls].T
-        # FIXME: wrong application of argmax, only return edges for
-        # the first class
-        edges_subnetwork = [
-            (i, j)
-            for i, j in G.edges
-            if np.argmax(domination[:, i, j], axis=0) == c
-        ]
-        logger.debug(f"class={c} subnetwork: edges={edges_subnetwork}")
-        sub_graph = nx.Graph()
-        sub_graph.add_nodes_from(G.nodes)
-        sub_graph.add_edges_from(edges_subnetwork)
-
-        return sub_graph
+        g = p * max(0, n0_sum - n_sum)
+        return g
 
 
 # alias
