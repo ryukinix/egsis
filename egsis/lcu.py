@@ -10,6 +10,21 @@ from loguru import logger
 Alguma coisa não está certa... as subnetworks não são disjuntas, a
 função g que gera novas particulas quase sempre está zerada... a
 matriz delta só fica com elementos na diagonal... tem algo errado aqui
+
+lerax - sáb 17 dez 2022 02:47:16
+
+óh céus!!! A função de evolução não tá mudando em nada depois das
+primeiras iterações! Será que existe mais algum bug na implementação
+das equações!? Será que eu deveria fazer o que o verri falou e usar o
+paper mais novo?! Deixei em research/lcu_simplified_improved.pdf
+
+esse documento deve ajudar
+
+lerax - qua 21 dez 2022 10:10:58
+
+Parece que a evolução de nc está incorreta, inverti a multiplicação de
+matrizes, pois geralmente é matrix x vetor, não vetor x matrix...
+Os resultados começaram a ter maior variação, mas parecem estar invertidos..
 """
 
 
@@ -111,15 +126,18 @@ class LabeledComponentUnfolding:
 
     def step(self, G: nx.Graph):
         """Execute iteration of LCU algorithm"""
-        logger.info(f"== iteration={self.iterations+1}/{self.max_iter}")
+        if (self.iterations+1) % 10 == 0:
+            logger.trace(f"== iteration={self.iterations+1}/{self.max_iter}")
         # FIXME: review this loop and the individual functions
         for c in range(self.n_classes):
             self.P = self.probability(G)
             g_c = self.g(G, c)
-            nc_product_pc = self.n[c] @ self.P[c]
+            # NOTE: originally that product was nc x Pc, but I inverted due
+            # matrix rules
+            nc_product_pc = self.P[c] @ self.n[c]
             self.N[c] = np.diag(self.n[c]) @ self.P[c]
             self.n[c] = nc_product_pc + g_c
-            self.delta[c] += self.N[c]
+            self.delta[c] = self.delta[c] + self.N[c]
 
     def unfold(self, G: nx.Graph) -> List[nx.Graph]:
         return [
@@ -131,6 +149,8 @@ class LabeledComponentUnfolding:
         edges_subnetwork = []
         for (i, j) in G.edges:
             d = self.delta[:, i, j] + self.delta[:, j, i]
+            if sum(d) == 0:  # unlabeled
+                continue
             if np.argmax(d, axis=0) == c:
                 edges_subnetwork.append((i, j))
 
@@ -158,13 +178,16 @@ class LabeledComponentUnfolding:
         """
         # FIXME: set the case when labeled node with different class c
         # result should be p=0 (sink case, absorption))
-        label = G.nodes[j].get("label", 0)
-        if label > 0 and label != c + 1:
-            return 0
+        if label := G.nodes[j].get("label", 0):
+            if label != c + 1:
+                return 0
 
+        # FIXME: implement properly the weighted case
         edge_weight = G.edges[i, j]["weight"]
-        total = sum(G.edges[i, x]["weight"] for x in G.neighbors(i))
-        walk = edge_weight / total
+        total_weight = sum(G.edges[i, x]["weight"] for x in G.neighbors(i))
+        weight = edge_weight / total_weight
+        degree = G.degree[i]
+        walk = edge_weight / degree
         survival = 1 - self.competition_level * self.sigma(G, i, j, c)
 
         return walk * survival
@@ -199,8 +222,7 @@ class LabeledComponentUnfolding:
         population = np.array([G.degree[v] / (2 * edges) for v in G.nodes])
         labels = np.zeros(shape=(self.n_classes, nodes))
         logger.debug(f"n0: classes={self.n_classes}, shape={labels.shape}")
-        for node in G.nodes:
-            idx = node - 1
+        for idx, node in enumerate(G.nodes):
             label = G.nodes[node].get("label", 0)
             cls = label - 1
             if label != 0:
