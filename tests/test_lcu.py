@@ -40,3 +40,15 @@ def test_lcu_sanity_check(graph):
     assert len(g1.edges) > 0
     assert len(g2.edges) > 0
     assert set(g1.edges) & set(g2.edges) == set()
+
+
+def test_lcu_classify_vertexes(graph):
+    """Assert if all vertexes are classified"""
+    lcu = LCU(
+        n_classes=2,
+        competition_level=1,
+        max_iter=10
+    )
+    sub_networks = lcu.fit_predict(graph)
+    g = lcu.classify_vertexes(sub_networks)
+    assert all(g.nodes[v]["label"] > 0 for v in g.nodes)

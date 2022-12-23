@@ -128,7 +128,7 @@ class LabeledComponentUnfolding:
         """Execute iteration of LCU algorithm"""
         if (self.iterations+1) % 10 == 0:
             logger.trace(f"== iteration={self.iterations+1}/{self.max_iter}")
-        # FIXME: review this loop and the individual functions
+
         for c in range(self.n_classes):
             self.P = self.probability(G)
             g_c = self.g(G, c)
@@ -176,16 +176,14 @@ class LabeledComponentUnfolding:
         Simulate particle survival + walk probability of class c going
         from v_i to v_j.
         """
-        # FIXME: set the case when labeled node with different class c
-        # result should be p=0 (sink case, absorption))
         if label := G.nodes[j].get("label", 0):
             if label != c + 1:
                 return 0
 
         # FIXME: implement properly the weighted case
         edge_weight = G.edges[i, j]["weight"]
-        total_weight = sum(G.edges[i, x]["weight"] for x in G.neighbors(i))
-        weight = edge_weight / total_weight
+        # total_weight = sum(G.edges[i, x]["weight"] for x in G.neighbors(i))
+        # weight = edge_weight / total_weight
         degree = G.degree[i]
         walk = edge_weight / degree
         survival = 1 - self.competition_level * self.sigma(G, i, j, c)
