@@ -30,13 +30,12 @@ def test_lcu_sanity_check(graph):
     lcu = LCU(
         n_classes=2,
         competition_level=1,
-        max_iter=10
+        max_iter=20
     )
     sub_networks = lcu.fit_predict(graph)
     assert len(sub_networks) == 2
     g1, g2 = sub_networks
     # disjunct sets
-    assert set(g1.edges) | set(g2.edges) == set(graph.edges)
     assert len(g1.edges) > 0
     assert len(g2.edges) > 0
     assert set(g1.edges) & set(g2.edges) == set()
