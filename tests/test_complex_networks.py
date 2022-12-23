@@ -1,6 +1,5 @@
 import networkx as nx
 import numpy
-import pytest
 
 from egsis import complex_networks
 
@@ -16,8 +15,8 @@ def test_complex_network_from_segments():
     expected = nx.Graph({
         0: {1, 2, 3},
         1: {0, 2},
-        2: [0, 1, 3],
-        3: [0, 2],
+        2: {0, 1, 3},
+        3: {0, 2},
     })
 
     got = complex_networks.complex_network_from_segments(example)

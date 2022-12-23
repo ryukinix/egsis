@@ -5,6 +5,7 @@ import networkx
 
 from egsis import superpixels
 from egsis import features
+from egsis import labeling
 
 
 def complex_network_from_segments(segments: numpy.ndarray) -> networkx.Graph:
@@ -49,19 +50,25 @@ def complex_network_from_segments(segments: numpy.ndarray) -> networkx.Graph:
 
 def compute_node_labels(
     graph: networkx.Graph,
-    img: numpy.ndarray,
     segments: numpy.ndarray,
     labels: numpy.ndarray
-):
+) -> networkx.Graph:
     """Add node label based on superpixel and img pixel labels"""
-    pass
+    for v in graph.nodes:
+        graph.nodes[v]["label"] = labeling.get_superpixel_label(
+            label_matrix=labels,
+            superpixels=segments,
+            superpixel=v
+        )
+
+    return graph
 
 
 def compute_node_features(
     graph: networkx.Graph,
     img: numpy.ndarray,
     segments: numpy.ndarray
-):
+) -> networkx.Graph:
     centroids = superpixels.superpixel_centroids(segments)
     max_radius = superpixels.superpixels_max_radius(segments, centroids)
     for v in graph.nodes:
@@ -72,6 +79,7 @@ def compute_node_features(
             max_radius=max_radius,
             centroid=centroids[v],
         )
+    return graph
 
 
 def compute_edge_weights(
@@ -84,6 +92,7 @@ def compute_edge_weights(
         xi, xj = graph.nodes[vi]["features"], graph.nodes[vj]["features"]
         similarities[(vi, vj)] = similarity_function(xi, xj)
     graph.set_edge_attributes(graph, similarities, "weight")
+    return graph
 
 
 def draw_complex_network(

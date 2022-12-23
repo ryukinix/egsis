@@ -1,4 +1,4 @@
-from typing import Dict, Callable
+from typing import Dict, Callable, List
 
 import numpy
 import networkx
@@ -55,9 +55,9 @@ class EGSIS:
 
     def __init__(
         self,
-        superpixel_segments,
-        superpixel_sigma,
-        superpixel_compactness,
+        superpixel_segments: int,
+        superpixel_sigma: float,
+        superpixel_compactness: float,
         feature_crop_image: bool = True,
         feature_extraction: str = "fft",
         feature_similarity: str = "euclidian",
@@ -84,11 +84,15 @@ class EGSIS:
         )
         return segments
 
-    def build_complex_network(self, X, y, segments) -> networkx.Graph:
+    def build_complex_network(
+        self,
+        X: numpy.ndarray,
+        y: numpy.ndarray,
+        segments: numpy.ndarray
+    ) -> networkx.Graph:
         G = complex_networks.complex_network_from_segments(segments)
         complex_networks.compute_node_labels(
             graph=G,
-            img=X,
             segments=segments,
             labels=y
         )
@@ -96,7 +100,6 @@ class EGSIS:
             graph=G,
             img=X,
             segments=segments
-
         )
         complex_networks.compute_edge_weights(
             graph=G,
@@ -104,7 +107,12 @@ class EGSIS:
         )
         return G
 
-    def fit_predict(self, X, y) -> numpy.ndarray:
+    def sub_networks_to_matrix(self, sub_networks: List[networkx.Graph]):
+        # FIXME: this should return subnetworks and a auxiliar
+        # function should generate a new y_pred matrix
+        return sub_networks
+
+    def fit_predict(self, X: numpy.ndarray, y: numpy.ndarray) -> numpy.ndarray:
         """
 
         Parameters:
@@ -128,7 +136,7 @@ class EGSIS:
             max_iter=self.lcu_max_iter,
             n_classes=n_classes
         )
-        # FIXME: this should return subnetworks and a auxiliar
-        # function should generate a new y_pred matrix
-        y_pred = collective_dynamic.fit_predict(G)
-        return y_pred
+
+        sub_networks = collective_dynamic.fit_predict(G)
+
+        return self.sub_networks_to_matrix(sub_networks)
