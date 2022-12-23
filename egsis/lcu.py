@@ -269,6 +269,20 @@ class LabeledComponentUnfolding:
         g = p * max(0, n0_sum - n_sum)
         return g
 
+    def classify_vertexes(self, sub_networks: List[nx.Graph]) -> nx.Graph:
+        """Classify the unlabeled vertexes based on the edge domination"""
+        G_pred = self.G.copy()
+        neighbors_classes = np.zeros(shape=(self.n_classes, self.nodes))
+        for c in range(self.n_classes):
+            subnet = sub_networks[c]
+            for j in subnet.nodes:
+                neighbors_classes[c, j] = len(list(subnet.neighbors(j)))
+        for node in G_pred.nodes:
+            label = np.argmax(neighbors_classes[:, node], axis=0)
+            G_pred.nodes[node]["label"] = label + 1
+
+        return G_pred
+
 
 # alias
 LCU = LabeledComponentUnfolding
