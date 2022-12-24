@@ -4,7 +4,7 @@ import numpy
 
 
 def test_feature_extraction(image_a):
-    x = features.feature_extraction(image_a)
+    x = features.feature_extraction_fft(image_a)
     expected = numpy.array(
         [
             [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
@@ -103,3 +103,14 @@ def test_get_segment_by_label_cropped(image_a, segments):
         ]
     )
     assert numpy.array_equal(x, expected)
+
+
+def test_feature_extraction_comatrix_should_have_one_dimension(image_a):
+    feats = features._feature_extraction_comatrix_channel(image_a)
+    assert len(feats.shape) == 1
+
+
+def test_feature_extraction_comatrix_should_concatenate(image_a):
+    img = numpy.array([image_a, image_a, image_a])
+    feats = features.feature_extraction_comatrix(img)
+    assert len(feats.shape) == 1

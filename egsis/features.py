@@ -1,15 +1,56 @@
-from typing import List, Optional
+from typing import List, Optional, Literal, Callable
 
 import numpy as np
 
+from skimage.feature import graycomatrix, graycoprops
 
-def feature_extraction(img: np.ndarray) -> np.ndarray:
+
+def feature_extraction_fft(img: np.ndarray) -> np.ndarray:
     """Multidimensional fourier transform
 
     NOTE(@lerax): dom 11 set 2022 09:49:35
     Maybe I should use PCA to reduce the high dimensional space.
     """
     return np.fft.fftshift(np.fft.fftn(img))
+
+
+def _feature_extraction_comatrix_channel(channel) -> np.ndarray:
+    glcm = graycomatrix(
+        channel,
+        distances=[10],
+        angles=[0, np.pi/4, np.pi/2, 3*np.pi/4],
+        levels=256,
+        symmetric=True,
+        normed=True
+    )
+    metrics = np.array([
+        graycoprops(glcm, "correlation"),
+        graycoprops(glcm, "energy"),
+        graycoprops(glcm, "ASM"),
+        graycoprops(glcm, "dissimilarity"),
+    ])
+    stat_functions: List[Callable[[np.ndarray], np.ndarray]] = [
+        np.mean,
+        np.median,
+        np.var,
+        np.std,
+        lambda v: np.quantile(v, q=0.25)
+    ]
+    stats = [
+        f(m)
+        for m in metrics
+        for f in stat_functions
+    ]
+    features = np.array(stats)
+    return features
+
+
+def feature_extraction_comatrix(img: np.ndarray) -> np.ndarray:
+    """Img should be a rgb with 3 dimensions"""
+    r = _feature_extraction_comatrix_channel(img[:, :, 0])
+    g = _feature_extraction_comatrix_channel(img[:, :, 1])
+    b = _feature_extraction_comatrix_channel(img[:, :, 2])
+    return np.concatenate((r, g, b), axis=0)
 
 
 def get_segment_by_label(
@@ -90,12 +131,17 @@ def feature_extraction_segment(
     label: int,
     max_radius: Optional[int] = None,
     centroid: Optional[List[int]] = None,
-    erase_color: Optional[int] = 0
+    erase_color: Optional[int] = 0,
+    feature_method: Literal["fft", "comatrix"] = "fft"
 ):
     """Return the features of the segment
 
     If centroid and max_radius are provided, it crops the image
     """
+    feature_functions = {
+        "fft": feature_extraction_fft,
+        "comatrix": feature_extraction_comatrix
+    }
 
     if any(param is not None for param in (max_radius, centroid)):
         image_segment = get_segment_by_label_cropped(
@@ -113,4 +159,4 @@ def feature_extraction_segment(
             label
         )
 
-    return feature_extraction(image_segment)
+    return feature_functions[feature_method](image_segment)
