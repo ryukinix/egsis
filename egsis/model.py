@@ -1,7 +1,8 @@
-from typing import Dict, Callable, List
+from typing import Dict, Callable, List, Literal
 
 import numpy
 import networkx
+from loguru import logger
 
 from egsis import complex_networks
 from egsis import features
@@ -59,11 +60,11 @@ class EGSIS:
         superpixel_sigma: float,
         superpixel_compactness: float,
         feature_crop_image: bool = True,
-        feature_extraction: str = "fft",
+        feature_extraction: Literal["fft", "comatrix"] = "fft",
         feature_similarity: str = "euclidian",
         network_build_method: str = "neighbors",
         lcu_competition_level: float = 1,
-        lcu_max_iter: int = 500
+        lcu_max_iter: int = 100
     ):
         self.superpixel_segments = superpixel_segments
         self.superpixel_sigma = superpixel_sigma
@@ -99,7 +100,8 @@ class EGSIS:
         complex_networks.compute_node_features(
             graph=G,
             img=X,
-            segments=segments
+            segments=segments,
+            feature_method=self.feature_extraction
         )
         complex_networks.compute_edge_weights(
             graph=G,
@@ -112,7 +114,7 @@ class EGSIS:
         # function should generate a new y_pred matrix
         return sub_networks
 
-    def fit_predict(self, X: numpy.ndarray, y: numpy.ndarray) -> numpy.ndarray:
+    def fit_predict(self, X: numpy.ndarray, y: numpy.ndarray):
         """
 
         Parameters:
@@ -139,4 +141,5 @@ class EGSIS:
 
         sub_networks = collective_dynamic.fit_predict(G)
 
-        return self.sub_networks_to_matrix(sub_networks)
+        # FIXME: should return a matrix y with new labels
+        return collective_dynamic.classify_vertexes(sub_networks)

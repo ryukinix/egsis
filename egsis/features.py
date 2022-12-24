@@ -1,8 +1,8 @@
 from typing import List, Optional, Literal, Callable
 
 import numpy as np
-
 from skimage.feature import graycomatrix, graycoprops
+from loguru import logger
 
 
 def feature_extraction_fft(img: np.ndarray) -> np.ndarray:
@@ -73,10 +73,12 @@ def crop_image(
 ):
     """Crop image as square window with max_radius and centroid point"""
     x, y = centroid
-    return img[
+    s = img[
         y - max_radius: y + max_radius,
         x - max_radius: x + max_radius
     ]
+    logger.debug(locals())
+    return s
 
 
 def get_segment_by_label_cropped(
@@ -131,7 +133,7 @@ def feature_extraction_segment(
     label: int,
     max_radius: Optional[int] = None,
     centroid: Optional[List[int]] = None,
-    erase_color: Optional[int] = 0,
+    erase_color: Optional[int] = None,
     feature_method: Literal["fft", "comatrix"] = "fft"
 ):
     """Return the features of the segment
@@ -158,5 +160,5 @@ def feature_extraction_segment(
             segments,
             label
         )
-
+    logger.debug(f"img: {image_segment}")
     return feature_functions[feature_method](image_segment)

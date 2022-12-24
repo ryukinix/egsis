@@ -2,6 +2,14 @@ import pytest
 from egsis import features
 import numpy
 
+from skimage.data import cat as _cat
+from skimage.util import img_as_ubyte
+
+
+@pytest.fixture
+def cat():
+    return img_as_ubyte(_cat())
+
 
 def test_feature_extraction(image_a):
     x = features.feature_extraction_fft(image_a)
@@ -114,3 +122,8 @@ def test_feature_extraction_comatrix_should_concatenate(image_a):
     img = numpy.array([image_a, image_a, image_a])
     feats = features.feature_extraction_comatrix(img)
     assert len(feats.shape) == 1
+
+
+def test_crop_image_should_not_be_empty(cat):
+    segment = features.crop_image(cat, max_radius=40, centroid=[18, 25])
+    assert len(segment) != 0
