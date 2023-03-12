@@ -1,4 +1,4 @@
-FROM ryukinix/pdm:3.9.9
+FROM ryukinix/pdm:3.11.2
 
 COPY pyproject.toml pdm.lock /app/
 RUN pdm install --no-self

@@ -130,6 +130,7 @@ class EGSIS:
         -------
         new y matrix with full filled labels.
         """
+        logger.info("Run!")
         segments = self.build_superpixels(X)
         G = self.build_complex_network(X, y, segments)
         n_classes = numpy.unique(y).count() - 1
