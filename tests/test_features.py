@@ -125,5 +125,6 @@ def test_feature_extraction_comatrix_should_concatenate(image_a):
 
 
 def test_crop_image_should_not_be_empty(cat):
+    """Regression test: bug with empty crop image"""
     segment = features.crop_image(cat, max_radius=40, centroid=[18, 25])
     assert len(segment) != 0

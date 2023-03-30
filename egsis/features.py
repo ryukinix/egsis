@@ -72,12 +72,32 @@ def crop_image(
     centroid: List[int],
 ):
     """Crop image as square window with max_radius and centroid point"""
+    # FIXME(@lerax): qua 29 mar 2023 12:02:30:
+    # Don't allow that values to be negative:
+    #
+    # y - max_radius
+    # x - max_radius
+    #
+    # if they are, set it as 0.
     x, y = centroid
+
+    start_heigth = y - max_radius
+    end_heigth = y + max_radius
+    start_width = x - max_radius
+    end_width = x + max_radius
+
+    if start_heigth < 0:
+        end_heigth += abs(start_heigth)
+        start_heigth = 0
+
+    if start_width < 0:
+        end_width += abs(start_width)
+        start_width = 0
+
     s = img[
-        y - max_radius: y + max_radius,
-        x - max_radius: x + max_radius
+        start_heigth: end_heigth,
+        start_width: end_width
     ]
-    logger.debug(locals())
     return s
 
 
