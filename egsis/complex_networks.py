@@ -1,4 +1,4 @@
-from typing import Dict, Set, Callable, Tuple
+from typing import Dict, Set, Callable, Tuple, Literal
 
 import numpy
 import networkx
@@ -67,7 +67,8 @@ def compute_node_labels(
 def compute_node_features(
     graph: networkx.Graph,
     img: numpy.ndarray,
-    segments: numpy.ndarray
+    segments: numpy.ndarray,
+    feature_method: Literal["fft", "comatrix"]
 ) -> networkx.Graph:
     centroids = superpixels.superpixel_centroids(segments)
     max_radius = superpixels.superpixels_max_radius(segments, centroids)
@@ -78,6 +79,7 @@ def compute_node_features(
             label=v,
             max_radius=max_radius,
             centroid=centroids[v],
+            feature_method=feature_method
         )
     return graph
 
@@ -98,7 +100,10 @@ def compute_edge_weights(
 def draw_complex_network(
     graph: networkx.Graph,
     segments: numpy.ndarray,
-    ax=None
+    ax=None,
+    node_color='#ff0000',
+    node_size=10,
+    color_map=None,
 ):
     """Draw complex network in predefined layout based in the segments.
 
@@ -109,11 +114,11 @@ def draw_complex_network(
     """
     networkx.draw_networkx(
         graph,
-        node_size=10,
+        node_size=node_size,
         arrows=False,
         alpha=1,
         ax=ax,
-        node_color='#ff0000',
+        node_color=node_color,
         edge_color='#f8fc03',
         width=0.8,
         with_labels=False,
