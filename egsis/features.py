@@ -180,5 +180,5 @@ def feature_extraction_segment(
             segments,
             label
         )
-    logger.debug(f"img: {image_segment}")
+    # logger.debug(f"img: {image_segment}")
     return feature_functions[feature_method](image_segment)

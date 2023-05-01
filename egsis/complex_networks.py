@@ -93,7 +93,7 @@ def compute_edge_weights(
     for (vi, vj) in graph.edges:
         xi, xj = graph.nodes[vi]["features"], graph.nodes[vj]["features"]
         similarities[(vi, vj)] = similarity_function(xi, xj)
-    graph.set_edge_attributes(graph, similarities, "weight")
+    networkx.set_edge_attributes(graph, similarities, "weight")
     return graph
 
 

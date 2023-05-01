@@ -133,7 +133,7 @@ class EGSIS:
         logger.info("Run!")
         segments = self.build_superpixels(X)
         G = self.build_complex_network(X, y, segments)
-        n_classes = numpy.unique(y).count() - 1
+        n_classes = len(numpy.unique(y)) - 1
         collective_dynamic = lcu.LabeledComponentUnfolding(
             competition_level=self.lcu_competition_level,
             max_iter=self.lcu_max_iter,
