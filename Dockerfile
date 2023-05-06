@@ -1,6 +1,6 @@
-FROM ryukinix/pdm:3.11.2
+FROM ryukinix/pdm:3.11.3
 
-COPY pyproject.toml pdm.lock /app/
+COPY pyproject.toml setup.cfg pdm.lock /app/
 RUN pdm install --no-self
 
 ADD README.md setup.py /app/

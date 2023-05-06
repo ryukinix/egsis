@@ -2,7 +2,6 @@ from typing import List, Optional, Literal, Callable
 
 import numpy as np
 from skimage.feature import graycomatrix, graycoprops
-from loguru import logger
 
 
 def feature_extraction_fft(img: np.ndarray) -> np.ndarray:

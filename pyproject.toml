@@ -9,7 +9,7 @@ dependencies = [
     "opencv-python>=4.6.0.66",
     "scikit-image>=0.21.0rc0",
     "typer>=0.6.1",
-    "matplotlib>=3.5.3",
+    "matplotlib>=3.7.1",
     "networkx>=2.8.6",
     "scipy>=1.10.1",
     "loguru>=0.6.0",
@@ -30,9 +30,6 @@ target_version = ["py310"]
 
 [tool.mypy]
 ignore_missing_imports = true
-
-[tool.flake8]
-exclude = "egsis/.ipynb_checkpoints,notebooks/.ipynb_checkpoints"
 
 [tool.pdm]
 [tool.pdm.dev-dependencies]
@@ -57,3 +54,9 @@ format = "black egsis/ tests/"
 check = {composite = ["lint egsis/", "test tests/"]}
 egsis = {call = "egsis.main:cli"}
 notebook = "jupyter lab"
+
+# pyproject.toml
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
