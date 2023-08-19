@@ -75,6 +75,9 @@ class EGSIS:
         self.network_build_method = network_build_method
         self.lcu_competition_level = lcu_competition_level
         self.lcu_max_iter = lcu_max_iter
+        self.G: networkx.Graph
+        self.sub_networks: List[networkx.Graph]
+        self.segments: numpy.ndarray
 
     def build_superpixels(self, X) -> numpy.ndarray:
         segments = superpixels.build_superpixels_from_image(
@@ -83,6 +86,9 @@ class EGSIS:
             compactness=self.superpixel_compactness,
             sigma=self.superpixel_sigma
         )
+        # NOTE(@lerax): seg 01 mai 2023 09:47:57
+        # segments indexing by 0, keep easier to control nodes vs edges vs numpy
+        segments = segments - 1
         return segments
 
     def build_complex_network(
@@ -131,16 +137,16 @@ class EGSIS:
         new y matrix with full filled labels.
         """
         logger.info("Run!")
-        segments = self.build_superpixels(X)
-        G = self.build_complex_network(X, y, segments)
-        n_classes = numpy.unique(y).count() - 1
+        self.segments = self.build_superpixels(X)
+        self.G = self.build_complex_network(X, y, self.segments)
+        n_classes = len(numpy.unique(y)) - 1
         collective_dynamic = lcu.LabeledComponentUnfolding(
             competition_level=self.lcu_competition_level,
             max_iter=self.lcu_max_iter,
             n_classes=n_classes
         )
 
-        sub_networks = collective_dynamic.fit_predict(G)
+        self.sub_networks = collective_dynamic.fit_predict(self.G)
 
         # FIXME: should return a matrix y with new labels
-        return collective_dynamic.classify_vertexes(sub_networks)
+        return collective_dynamic.classify_vertexes(self.sub_networks)

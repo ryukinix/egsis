@@ -2,7 +2,6 @@ from typing import List, Optional, Literal, Callable
 
 import numpy as np
 from skimage.feature import graycomatrix, graycoprops
-from loguru import logger
 
 
 def feature_extraction_fft(img: np.ndarray) -> np.ndarray:
@@ -180,5 +179,5 @@ def feature_extraction_segment(
             segments,
             label
         )
-    logger.debug(f"img: {image_segment}")
+    # logger.debug(f"img: {image_segment}")
     return feature_functions[feature_method](image_segment)

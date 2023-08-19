@@ -12,7 +12,7 @@ def create_label_matrix(shape=Tuple[int, int]) -> numpy.ndarray:
     Zero means unlabelled in this context. The labels are non-zero
     integers.
     """
-    return numpy.zeros(shape=shape)
+    return numpy.zeros(shape=shape, dtype=numpy.int64)
 
 
 def set_superpixel_label(
@@ -33,8 +33,7 @@ def get_superpixel_label(
     superpixel: int,
 ):
     """Get the most ocurrent label in superpixel"""
-    superpixel_mask = superpixels[superpixels == superpixel]
-    histogram = numpy.bincount(label_matrix[superpixel_mask].flatten())
+    histogram = numpy.bincount(label_matrix[superpixels == superpixel].flatten())
     most_occurent_label_at_superpixel = numpy.argmax(histogram)
 
     return most_occurent_label_at_superpixel
