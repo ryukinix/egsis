@@ -77,6 +77,7 @@ class EGSIS:
         self.lcu_max_iter = lcu_max_iter
         self.G: networkx.Graph
         self.sub_networks: List[networkx.Graph]
+        self.segments: numpy.ndarray
 
     def build_superpixels(self, X) -> numpy.ndarray:
         segments = superpixels.build_superpixels_from_image(
@@ -136,8 +137,8 @@ class EGSIS:
         new y matrix with full filled labels.
         """
         logger.info("Run!")
-        segments = self.build_superpixels(X)
-        self.G = self.build_complex_network(X, y, segments)
+        self.segments = self.build_superpixels(X)
+        self.G = self.build_complex_network(X, y, self.segments)
         n_classes = len(numpy.unique(y)) - 1
         collective_dynamic = lcu.LabeledComponentUnfolding(
             competition_level=self.lcu_competition_level,
