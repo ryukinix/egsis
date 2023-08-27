@@ -8,6 +8,7 @@ from egsis import complex_networks
 from egsis import features
 from egsis import lcu
 from egsis import superpixels
+from egsis import labeling
 
 
 similarity_functions: Dict[str, Callable] = {
@@ -147,6 +148,16 @@ class EGSIS:
         )
 
         self.sub_networks = collective_dynamic.fit_predict(self.G)
+        self.G_pred = collective_dynamic.classify_vertexes(self.sub_networks)
 
         # FIXME: should return a matrix y with new labels
-        return collective_dynamic.classify_vertexes(self.sub_networks)
+        return self.G_pred
+
+    def fit_predict_segmentation_mask(self, X: numpy.ndarray, y: numpy.ndarray):
+        G = self.fit_predict(X, y)
+        superpixels_by_label = {}
+        for node in G.nodes:
+            label = G.nodes[node]["label"]
+            superpixels_by_label[node] = label
+
+        return labeling.create_segmentation_mask(self.segments, superpixels_by_label)
