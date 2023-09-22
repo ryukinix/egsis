@@ -2,7 +2,7 @@
 Module responsible to handle label creation of superpixels
 """
 
-from typing import Tuple
+from typing import Tuple, Dict
 import numpy
 
 
@@ -22,8 +22,7 @@ def set_superpixel_label(
     label: int
 ) -> numpy.ndarray:
     """Set the label of a specific superpixel"""
-    superpixel_mask = superpixels[superpixels == superpixel]
-    label_matrix[superpixel_mask] = label
+    label_matrix[superpixels == superpixel] = label
     return label_matrix
 
 
@@ -37,3 +36,20 @@ def get_superpixel_label(
     most_occurent_label_at_superpixel = numpy.argmax(histogram)
 
     return most_occurent_label_at_superpixel
+
+
+def create_segmentation_mask(
+    superpixels: numpy.ndarray,
+    superpixels_by_label: Dict[int, int]
+) -> numpy.ndarray:
+    """Create segmentation mask as final output result"""
+    label_matrix = create_label_matrix(superpixels.shape)
+    for superpixel, label in superpixels_by_label.items():
+        label_matrix = set_superpixel_label(
+            label_matrix,
+            superpixels,
+            superpixel,
+            label
+        )
+
+    return label_matrix
