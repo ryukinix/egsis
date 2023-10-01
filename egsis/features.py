@@ -130,6 +130,22 @@ def euclidian_similarity(u: np.ndarray, v: np.ndarray) -> np.floating:
     return 1 / (1 + euclidian_distance(u, v))
 
 
+def euclidian_similarity_exp(u: np.ndarray, v: np.ndarray) -> np.floating:
+    """Euclidian similarity exponential
+
+    Using exponential 1/exp(v)
+    """
+    return np.exp(-euclidian_distance(u, v))
+
+
+def manhattan_distance(u: np.ndarray, v: np.ndarray) -> np.floating:
+    return sum(abs(p - q) for p, q in zip(u, v))
+
+
+def manhattan_similarity_exp(u: np.ndarray, v: np.ndarray) -> np.floating:
+    return np.exp(-manhattan_distance(u, v))
+
+
 def cosine_similarity(u: np.ndarray, v: np.ndarray) -> np.floating:
     """Cosine similiarty function
 
