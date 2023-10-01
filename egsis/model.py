@@ -12,8 +12,10 @@ from egsis import labeling
 
 
 similarity_functions: Dict[str, Callable] = {
+    "euclidian_exp": features.euclidian_similarity_exp,
+    "manhattan_exp": features.manhattan_distance,
     "euclidian": features.euclidian_similarity,
-    "cosine": features.cosine_similarity
+    "cosine": features.cosine_similarity,
 }
 
 
