@@ -13,7 +13,6 @@ dependencies = [
     "networkx>=2.8.6",
     "scipy>=1.10.1",
     "loguru>=0.6.0",
-    "ipyannotations>=0.5.1",
 ]
 requires-python = ">=3.9,<3.12"
 readme = "README.md"
