@@ -49,3 +49,9 @@ lint: build
 
 notebook: build
 	$(DOCKER_RUN) -i $(MOUNT_NOTEBOOK) $(EXPOSE_PORT) $(PROJECT_NAME) jupyter lab
+
+coverage:
+	coverage html
+	open htmlcov/index.html
+
+.PHONY: build run pull check lint coverage notebook install
