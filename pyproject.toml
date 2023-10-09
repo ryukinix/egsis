@@ -1,6 +1,6 @@
 [project]
 name = "egsis"
-version = "0.1.0"
+version = "0.1.0a0"
 description = "Exploratory Graph-based Semi-Supervised Image Segmentation"
 authors = [
     {name = "Manoel Vilela", email = "manoel_vilela@engineer.com"},
@@ -13,12 +13,11 @@ dependencies = [
     "networkx>=2.8.6",
     "scipy>=1.10.1",
     "loguru>=0.6.0",
+    "ipycanvas>=0.13.1",
 ]
 requires-python = ">=3.9,<3.12"
 readme = "README.md"
 license = {text = "MIT"}
-[project.optional-dependencies]
-
 [build-system]
 requires = ["pdm-pep517>=1.0.0"]
 build-backend = "pdm.pep517.api"
@@ -38,7 +37,6 @@ dev = [
     "black>=22.8.0",
     "coverage>=7.2.5",
     "flake8>=5.0.4",
-    "jupyter-innotater>=0.3.1",
     "jupyterlab>=3.4.6",
     "mypy==0.981",
     "pytest-cov>=4.0.0",
