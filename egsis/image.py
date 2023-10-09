@@ -47,6 +47,10 @@ def segmentation_mask_blend(img: np.ndarray, mask: np.ndarray, labels_by_color: 
     """
     img_mask = img.copy()
     for label, hex_color in labels_by_color.items():
-        img_mask[mask == label] = ImageColor.getcolor(hex_color, "RGB")
+        img_mask[mask == label] = get_color_from_hexcode(hex_color)
     blend = alpha_blend(img, img_mask)
     return mark_boundaries(blend, mask)
+
+
+def get_color_from_hexcode(hex_color: str):
+    return ImageColor.getcolor(hex_color, "RGB")
