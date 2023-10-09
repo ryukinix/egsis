@@ -2,7 +2,7 @@
 The point annotator is a abstraction of selecting arbitrary points using mouse
 """
 
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 from dataclasses import dataclass
 
 
@@ -20,6 +20,7 @@ class LabeledPoint:
     label: str
     color: np.ndarray  # FIXME: maybe hexcode later
     point: Tuple[int, int]
+    radius: float
 
 
 class PointAnnotator:
@@ -40,6 +41,7 @@ class PointAnnotator:
         self.output = widgets.Output()
         self.data_points: List[LabeledPoint]
         self.app: widgets.Widget
+        self._initialized_label_colors: Dict[int, str] = {}
         self._initialize_image()
         self._initialize_mouse()
         self._initialize_data_points()
@@ -48,12 +50,30 @@ class PointAnnotator:
     def _initialize_data_points(self):
         self.data_points = []
 
+    def _lock_color_when_label_is_initialized(self):
+        if self.label.value in self._initialized_label_colors:
+            self.color.value = self._initialized_label_colors[self.label.value]
+            self.color.disabled = True
+        else:
+            self.color.disabled = False
+
     def _initialize_control_panel(self):
         self.label = widgets.Dropdown(
             options=[(cls, idx)for idx, cls in enumerate(self.classes)],
             value=0,
             description='Label: ',
         )
+        self.color = widgets.ColorPicker(
+            concise=False,
+            description='Label color: ',
+            value='#0000ff',
+            disabled=False
+        )
+
+        def lock_color(change):
+            self._lock_color_when_label_is_initialized()
+
+        self.label.observe(lock_color, names='value')
         self.radius = widgets.FloatSlider(
             value=5,
             min=5,
@@ -66,12 +86,6 @@ class PointAnnotator:
             readout=True,
             readout_format='.1f',
         )
-        self.color = widgets.ColorPicker(
-            concise=False,
-            description='Label color: ',
-            value='#0000ff',
-            disabled=False
-        )
         self.restart = widgets.Button(
             description='Restart',
             disabled=False,
@@ -82,6 +96,8 @@ class PointAnnotator:
 
         def _restart(button):
             self.canvas.clear()
+            self.color.disabled = False
+            self._initialized_label_colors = {}
             self._initialize_data_points()
             self._initialize_image()
         self.restart.on_click(_restart)
@@ -111,9 +127,13 @@ class PointAnnotator:
                 LabeledPoint(
                     label=self.label.label,
                     color=self.color.value,
-                    point=self._get_original_cordinate_system(x, y)
+                    point=self._get_original_cordinate_system(x, y),
+                    radius=self.radius.value / self.resize_f
                 )
             )
+            if label not in self._initialized_label_colors:
+                self._initialized_label_colors[label] = self.color.value
+            self._lock_color_when_label_is_initialized()
             self._draw_circle(x, y, label=label)
         self.canvas.on_mouse_up(handle_click)
 
