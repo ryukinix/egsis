@@ -4,12 +4,12 @@ The point annotator is a abstraction of selecting arbitrary points using mouse
 
 from typing import List, Tuple, Dict
 from dataclasses import dataclass
-
+import math
 
 from ipycanvas import Canvas
-import ipywidgets as widgets
 from skimage.transform import resize
 from skimage.util import img_as_ubyte
+import ipywidgets as widgets
 import numpy as np
 
 from egsis.image import get_color_from_hexcode
@@ -18,9 +18,9 @@ from egsis.image import get_color_from_hexcode
 @dataclass
 class LabeledPoint:
     label: str
-    color: np.ndarray  # FIXME: maybe hexcode later
-    point: Tuple[int, int]
+    color: str
     radius: float
+    point: Tuple[int, int]
 
 
 class PointAnnotator:
@@ -66,7 +66,7 @@ class PointAnnotator:
         self.color = widgets.ColorPicker(
             concise=False,
             description='Label color: ',
-            value='#0000ff',
+            value='#00ff00',
             disabled=False
         )
 
@@ -157,5 +157,57 @@ class PointAnnotator:
         """
         return self.data_points
 
+    @property
+    def labels_by_color(self) -> Dict[int, str]:
+        """Useful for knowing colors to create segmentation mask later"""
+        return {
+            label + 1: color  # label 0 means unlabbeled in this context
+            for label, color in
+            self._initialized_label_colors.items()
+        }
+
+    @property
+    def labels_by_name(self) -> Dict[int, str]:
+        """Mapping labels (numbers) with the class name"""
+        return {
+            label + 1: name
+            for label, name in
+            enumerate(self.classes)
+        }
+
+    def _get_label_by_name(self, label_name: str) -> int:
+        return self.classes.index(label_name) + 1
+
+    @property
+    def label_matrix(self) -> np.ndarray:
+        label_matrix = np.zeros(self.image.shape)
+        for labeled_point in self.data:
+            label = self._get_label_by_name(labeled_point.label)
+            x, y = labeled_point.point
+            radius = labeled_point.radius
+
+            pixel_candidates = []
+            for sqr_x in range(round(x - radius), round(x + radius)):
+                for sqr_y in range(round(y - radius), round(y + radius)):
+                    pixel_candidates.append((sqr_x, sqr_y))
+
+            for pixel in pixel_candidates:
+                circle_center = labeled_point.point
+                if check_point_in_circle(circle_center, radius, pixel):
+                    label_matrix[pixel] = label
+
+        return label_matrix
+
     def display(self):
         return self.app
+
+
+def check_point_in_circle(
+    circle_center: Tuple[int, int],
+    circle_radius: float,
+    point: Tuple[int, int]
+):
+    c_x, c_y = circle_center
+    x, y = point
+    distance_between_point_circle = math.sqrt((x - c_x) ** 2 + (y - c_y) ** 2)
+    return distance_between_point_circle <= circle_radius
