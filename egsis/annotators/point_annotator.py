@@ -13,6 +13,7 @@ import ipywidgets as widgets
 import numpy as np
 
 from egsis.image import get_color_from_hexcode
+from egsis.labeling import create_label_matrix
 
 
 @dataclass
@@ -127,7 +128,11 @@ class PointAnnotator:
                 LabeledPoint(
                     label=self.label.label,
                     color=self.color.value,
-                    point=self._get_original_cordinate_system(x, y),
+                    # HACK(@lerax): seg 09 out 2023 23:00:15
+                    # for god sake, the x y are being swap
+                    # at some place!!! I'm swaping this again
+                    # to fix the problem
+                    point=self._get_original_cordinate_system(y, x),
                     radius=self.radius.value / self.resize_f
                 )
             )
@@ -180,7 +185,8 @@ class PointAnnotator:
 
     @property
     def label_matrix(self) -> np.ndarray:
-        label_matrix = np.zeros(self.image.shape)
+        w, h, _ = self.image.shape
+        label_matrix = create_label_matrix(shape=(w, h))
         for labeled_point in self.data:
             label = self._get_label_by_name(labeled_point.label)
             x, y = labeled_point.point
