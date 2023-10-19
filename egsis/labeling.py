@@ -31,9 +31,10 @@ def get_superpixel_label(
     superpixels: numpy.ndarray,
     superpixel: int,
 ):
-    """Get the most ocurrent label in superpixel"""
-    histogram = numpy.bincount(label_matrix[superpixels == superpixel].flatten())
-    most_occurent_label_at_superpixel = numpy.argmax(histogram)
+    """Get the most ocurrent label in superpixel, ignoring unlabeled"""
+    y = label_matrix[(label_matrix != 0) & (superpixels == superpixel)]
+    histogram = numpy.bincount(y.flatten())
+    most_occurent_label_at_superpixel = numpy.argmax(histogram) if histogram.size > 0 else 0
 
     return most_occurent_label_at_superpixel
 
