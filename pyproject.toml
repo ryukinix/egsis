@@ -6,7 +6,6 @@ authors = [
     {name = "Manoel Vilela", email = "manoel_vilela@engineer.com"},
 ]
 dependencies = [
-    "opencv-python>=4.6.0.66",
     "scikit-image>=0.21.0rc0",
     "typer>=0.6.1",
     "matplotlib>=3.7.1",
