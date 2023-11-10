@@ -1,4 +1,4 @@
-import numpy as np
+bvgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg                                        import numpy as np
 
 
 def _check_if_they_are_binarized(y_true: np.ndarray, y_pred: np.ndarray):
@@ -27,3 +27,9 @@ def f1(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     intersection = y_true & y_pred
     total_size = y_true.size + y_pred.size
     return (2 * intersection.sum()) / total_size
+
+def err(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+    """Error rate (mis-segmentation rate)"""
+    roi_pixels = y_true.sum()
+    mis_segmentation = (y_true | y_pred) - y_true
+    return mis_segmentation / roi_pixels
