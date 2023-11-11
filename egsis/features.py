@@ -4,15 +4,6 @@ import numpy as np
 from skimage.feature import graycomatrix, graycoprops
 
 
-def feature_extraction_fft(img: np.ndarray) -> np.ndarray:
-    """Multidimensional fourier transform
-
-    NOTE(@lerax): dom 11 set 2022 09:49:35
-    Maybe I should use PCA to reduce the high dimensional space.
-    """
-    return np.fft.fftshift(np.fft.fftn(img))
-
-
 def _feature_extraction_comatrix_channel(channel) -> np.ndarray:
     glcm = graycomatrix(
         channel,
@@ -169,14 +160,13 @@ def feature_extraction_segment(
     max_radius: Optional[int] = None,
     centroid: Optional[List[int]] = None,
     erase_color: Optional[int] = None,
-    feature_method: Literal["fft", "comatrix"] = "fft"
+    feature_method: Literal["comatrix"] = "comatrix"
 ):
     """Return the features of the segment
 
     If centroid and max_radius are provided, it crops the image
     """
     feature_functions = {
-        "fft": feature_extraction_fft,
         "comatrix": feature_extraction_comatrix
     }
 

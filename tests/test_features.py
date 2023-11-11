@@ -6,21 +6,20 @@ from skimage.data import cat as _cat
 from skimage.util import img_as_ubyte
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def cat():
     return img_as_ubyte(_cat())
 
 
-def test_feature_extraction(image_a):
-    x = features.feature_extraction_fft(image_a)
+def test_feature_extraction(image_colorized):
+    x = features.feature_extraction_comatrix(image_colorized)
     expected = numpy.array(
         [
-            [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
-            [-45.0 - 25.98076211j, 180.0 + 0.0j, -45.0 + 25.98076211j],
-            [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+            1., 1., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            1., 1., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            1., 1., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.
         ]
     )
-
     assert numpy.allclose(x, expected)
 
 
@@ -63,17 +62,17 @@ def test_cosine_similarity_failure(image_a, image_b):
         features.cosine_similarity(image_a, image_b.flatten())
 
 
-def test_feature_extraction_segment(image_a, segments):
+def test_feature_extraction_segment(image_colorized, segments):
     x = features.feature_extraction_segment(
-        img=image_a,
+        img=image_colorized,
         segments=segments,
         label=2,
     )
     expected = numpy.array(
         [
-            [8.8817842e-16 + 17.32050808j, -3.0e01 - 51.96152423j, 1.5e01 + 8.66025404j],  # noqa
-            [-1.5e01 - 8.66025404j, 6.0e01 + 0.0j, -1.5e01 + 8.66025404j],
-            [1.5e01 - 8.66025404j, -3.0e01 + 51.96152423j, 8.8817842e-16 - 17.32050808j],  # noqa
+            1., 1., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            1., 1., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            1., 1., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.
         ]
     )
     assert numpy.allclose(x, expected)

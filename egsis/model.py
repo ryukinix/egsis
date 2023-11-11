@@ -46,7 +46,7 @@ class EGSIS:
        - network build method: superpixel neighbors
 
     feature extraction:
-        - feature method: multidimensional fast fourier transform
+        - feature method: comatrix
         - crop image: True | False
         - erase_color
         - similarity function: euclidian | cosine
@@ -63,7 +63,7 @@ class EGSIS:
         superpixel_sigma: float,
         superpixel_compactness: float,
         feature_crop_image: bool = True,
-        feature_extraction: Literal["fft", "comatrix"] = "fft",
+        feature_extraction: Literal["comatrix"] = "comatrix",
         feature_similarity: str = "euclidian",
         network_build_method: str = "neighbors",
         lcu_competition_level: float = 1,
