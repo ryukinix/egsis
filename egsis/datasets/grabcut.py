@@ -26,11 +26,18 @@ class LabeledImage:
     segmentation: np.ndarray  # ground truth
     rect: np.ndarray
 
-    def y_test(self):
-        pass
-
     def y_train(self):
-        pass
+        y_train = self.lasso.copy()
+        y_train[y_train == 64] = 1  # background
+        y_train[y_train == 128] = 0  # 0 means unlabelled for egsis
+        y_train[y_train == 255] = 2  # foreground
+        return y_train
+
+    def y_true(self):
+        y_true = self.segmentation.copy()
+        y_true[y_true == 128] = 1
+        y_true[y_true == 255] = 1
+        return y_true
 
 
 def _list_fnames() -> List[str]:
