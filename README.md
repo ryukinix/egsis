@@ -6,8 +6,31 @@ EGSIS is acronymoun for: Exploratory Graph-Based Semi-supervised Image
 Segmentation.
 
 It's a Python implementation of a image segmentation algorithm that
-combines superpixel with complex networks dynamics.
+combines superpixel with complex networks dynamics. In this setup, we
+classify the algorithm as transductive as well.
 
+# What is transductive segmentation?
+
+Transductive segmentation is a concept in machine learning and
+computer vision. It refers to the process of segmenting or dividing an
+unlabeled dataset into distinct groups or segments based on the
+inherent structure or patterns within the data.
+
+Formally, transductive segmentation can be defined as follows:
+
+> Given an unlabeled dataset X = {x1, x2, ..., xn}, the goal of
+transductive segmentation is to assign a label yi to each data point
+xi such that the resulting segmentation optimally reflects the
+inherent structure or patterns within the data. This is typically
+achieved by defining a similarity measure between data points and then
+grouping together data points that are similar according to this
+measure.
+
+The **key characteristic** of transductive segmentation is that it does
+not require a separate training phase. Instead, it directly infers the
+labels for the given dataset based on the data itself. This makes it
+particularly suitable for tasks where the distribution of the data is
+unknown or may change over time.
 
 # What is graph-based image segmentation?
 
