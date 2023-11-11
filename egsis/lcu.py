@@ -181,13 +181,9 @@ class LabeledComponentUnfolding:
             if label != c + 1:
                 return 0
 
-        # NOTE: IMPORTANT!!!!!!!!!!!!!!! sáb 11 nov 2023 00:36:54
-        # FIXME: implement properly the weighted case
         edge_weight = G.edges[i, j]["weight"]
-        # total_weight = sum(G.edges[i, x]["weight"] for x in G.neighbors(i))
-        # weight = edge_weight / total_weight
-        degree = G.degree[i]
-        walk = edge_weight / degree
+        total_weight = sum(G.edges[i, x]["weight"] for x in G.neighbors(i))
+        walk = edge_weight / total_weight
         survival = 1 - self.competition_level * self.sigma(G, i, j, c)
 
         return walk * survival
