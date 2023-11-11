@@ -7,9 +7,10 @@ Module focused in:
 """
 from typing import Dict
 
-from PIL import ImageColor
+from PIL import ImageColor, Image
 from skimage.segmentation import mark_boundaries
 import numpy as np
+from pathlib import Path
 
 
 def alpha_blend(img1: np.ndarray, img2: np.ndarray, alpha: float = 0.5) -> np.ndarray:
@@ -50,6 +51,10 @@ def segmentation_mask_blend(img: np.ndarray, mask: np.ndarray, labels_by_color: 
         img_mask[mask == label] = get_color_from_hexcode(hex_color)
     blend = alpha_blend(img, img_mask)
     return mark_boundaries(blend, mask)
+
+
+def read_image_from_file(fpath: Path | str) -> np.ndarray:
+    return np.array(Image.open(fpath))
 
 
 def get_color_from_hexcode(hex_color: str):

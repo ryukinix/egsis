@@ -84,6 +84,7 @@ class LabeledComponentUnfolding:
             f"{k}={v}" for k, v in {
                 "n_classes": n_classes,
                 "competition_level": competition_level,
+                "scale_particles": scale_particles,
                 "max_iter": max_iter,
             }.items()
         ])
@@ -180,6 +181,7 @@ class LabeledComponentUnfolding:
             if label != c + 1:
                 return 0
 
+        # NOTE: IMPORTANT!!!!!!!!!!!!!!! sáb 11 nov 2023 00:36:54
         # FIXME: implement properly the weighted case
         edge_weight = G.edges[i, j]["weight"]
         # total_weight = sum(G.edges[i, x]["weight"] for x in G.neighbors(i))
@@ -209,7 +211,6 @@ class LabeledComponentUnfolding:
             degree / total_degree_sum if G.nodes[node]["label"] == c + 1 else 0
             for node, degree in zip(G.nodes, node_degrees)
         ])
-        # logger.debug(f"p =\n {p}")
         return p
 
     @lru_cache
@@ -226,7 +227,7 @@ class LabeledComponentUnfolding:
             if label != 0:
                 labels[cls, idx] = label
         particles = labels * population * self.scale_particles
-        logger.info(f"n0: {particles}")
+        logger.debug(f"n0: {particles}")
         return particles
 
     def N0(self, G: nx.Graph):
