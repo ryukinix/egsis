@@ -8,6 +8,7 @@ from skimage.filters import gabor_kernel
 
 from functools import lru_cache
 
+
 @lru_cache()
 def _generate_kernels():
     # prepare filter bank kernels
@@ -18,9 +19,9 @@ def _generate_kernels():
             for frequency in (0.05, 0.25):
                 kernel = np.real(
                     gabor_kernel(
-                        frequency, 
+                        frequency,
                         theta=theta,
-                        sigma_x=sigma, 
+                        sigma_x=sigma,
                         sigma_y=sigma
                     )
                 )

@@ -2,7 +2,9 @@ from typing import List, Optional, Literal, Callable
 
 import numpy as np
 from skimage.feature import graycomatrix, graycoprops
-from egsis.gabor import feature_extraction_gabor 
+from egsis.gabor import feature_extraction_gabor
+
+FeaturesMethods = Literal["comatrix", "gabor"]
 
 
 def _feature_extraction_comatrix_channel(channel: np.ndarray) -> np.ndarray:
@@ -165,7 +167,7 @@ def feature_extraction_segment(
     max_radius: Optional[int] = None,
     centroid: Optional[List[int]] = None,
     erase_color: Optional[int] = None,
-    feature_method: Literal["comatrix"] = "comatrix"
+    feature_method: FeaturesMethods = "comatrix"
 ):
     """Return the features of the segment
 

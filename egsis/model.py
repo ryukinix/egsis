@@ -1,4 +1,4 @@
-from typing import Dict, Callable, List, Literal
+from typing import Dict, Callable, List
 
 import numpy
 import networkx
@@ -64,7 +64,7 @@ class EGSIS:
         superpixel_sigma: float,
         superpixel_compactness: float,
         feature_crop_image: bool = True,
-        feature_extraction: Literal["comatrix", "gabor"] = "comatrix",
+        feature_extraction: features.FeaturesMethods = "comatrix",
         feature_similarity: str = "euclidian",
         network_build_method: str = "neighbors",
         lcu_competition_level: float = 1,
