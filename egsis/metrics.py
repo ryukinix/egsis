@@ -25,7 +25,7 @@ def iou(y_true: np.ndarray, y_pred: np.ndarray) -> float:
 def f1(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     _check_if_they_are_binarized(y_true, y_pred)
     intersection = y_true & y_pred
-    total_size = y_true.size + y_pred.size
+    total_size = y_true.sum() + y_pred.sum()
     return (2 * intersection.sum()) / total_size
 
 

@@ -32,7 +32,7 @@ def test_iou(x, y):
 
 
 def test_f1(x, y):
-    assert metrics.f1(x, y) == pytest.approx(0.11111, 0.001)
+    assert metrics.f1(x, y) == pytest.approx(0.33333, 0.001)
 
 
 def test_iou_raise_error_on_non_binarized_labels(x, y):
