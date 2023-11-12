@@ -107,16 +107,19 @@ class EGSIS:
             segments=segments,
             labels=y
         )
+        logger.info("Complex networks: compute node labels finished.")
         complex_networks.compute_node_features(
             graph=G,
             img=X,
             segments=segments,
             feature_method=self.feature_extraction
         )
+        logger.info("Complex networks: feature extraction finished.")
         complex_networks.compute_edge_weights(
             graph=G,
             similarity_function=self.feature_similarity
         )
+        logger.info("Complex networks: compute node weights finished.")
         return G
 
     def sub_networks_to_matrix(self, sub_networks: List[networkx.Graph]):
@@ -134,7 +137,7 @@ class EGSIS:
              luminosity of each color channel of RGB
         y : numpy.ndarray (shape=(n, m))
              it's the label matrix with partial annotation, to be full
-             filled Every non-zero value it's a label, and zero it's
+             filled every non-zero value it's a label, and zero it's
              an unlabeled pixel.
         Returns
         -------
@@ -142,7 +145,9 @@ class EGSIS:
         """
         logger.info("Run!")
         self.segments = self.build_superpixels(X)
+        logger.info("Superpixels: finished.")
         self.G = self.build_complex_network(X, y, self.segments)
+        logger.info("Complex networks: finished.")
         n_classes = len(numpy.unique(y)) - 1
         collective_dynamic = lcu.LabeledComponentUnfolding(
             competition_level=self.lcu_competition_level,
@@ -152,6 +157,7 @@ class EGSIS:
 
         self.sub_networks = collective_dynamic.fit_predict(self.G)
         self.G_pred = collective_dynamic.classify_vertexes(self.sub_networks)
+        logger.info("Dynamic collective LCU: finished.")
 
         # FIXME: should return a matrix y with new labels
         return self.G_pred
