@@ -182,8 +182,7 @@ class LabeledComponentUnfolding:
                 return 0
 
         edge_weight = G.edges[i, j]["weight"]
-        total_weight = sum(G.edges[i, x]["weight"] for x in G.neighbors(i))
-        walk = edge_weight / total_weight
+        walk = edge_weight / G.degree[i]
         survival = 1 - self.competition_level * self.sigma(G, i, j, c)
 
         return walk * survival
