@@ -34,7 +34,7 @@ class LabeledComponentUnfolding:
     Collective Dynamic Labeled Component Unfolding
 
 
-    It can be used to solve Semi-Supervised problems.
+    It can be used to solve Transductive Semi-Supervised problems.
 
 
     Parameters
@@ -184,7 +184,9 @@ class LabeledComponentUnfolding:
         edge_weight = G.edges[i, j]["weight"]
         walk = edge_weight / G.degree[i]
         survival = 1 - self.competition_level * self.sigma(G, i, j, c)
-
+        # FIXME: weirdly, sigma function only outputs 1, 0.5  or 0
+        # it doesn't makes sense
+        # logger.trace(f"survival factor = {survival}")
         return walk * survival
 
     def probability(self, G: nx.Graph) -> np.ndarray:
@@ -241,17 +243,18 @@ class LabeledComponentUnfolding:
         return np.zeros(shape=(self.n_classes, nodes, nodes))
 
     def sigma(self, G: nx.Graph, i: int, j: int, c: int) -> float:
-        """Matrix with current relative domination sigma_ij[c]
+        """Current relative subordination sigma_ij[c]
 
-        Number of particles with label=c which moved from v_i to
-        v_j in the current time.
+        The fraction of particles that do not belong to class c and
+        have sucessfuly passed thorugh edge (i, j) in any direction at
+        the current time.
         """
-        S = np.sum((self.N[:, i, j] + self.N[:, j, i].T).flatten())
+        S = np.sum((self.N[:, i, j] + self.N[:, j, i]).flatten())
         result: float
-        if S <= 0:
-            result = 1 - (1 / self.n_classes)
-        else:
+        if S > 0:
             result = 1 - ((self.N[c][i][j] + self.N[c][j][i]) / S)
+        else:
+            result = 1 - (1 / self.n_classes)
 
         return result
 
