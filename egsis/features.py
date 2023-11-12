@@ -2,9 +2,10 @@ from typing import List, Optional, Literal, Callable
 
 import numpy as np
 from skimage.feature import graycomatrix, graycoprops
+from egsis.gabor import feature_extraction_gabor 
 
 
-def _feature_extraction_comatrix_channel(channel) -> np.ndarray:
+def _feature_extraction_comatrix_channel(channel: np.ndarray) -> np.ndarray:
     glcm = graycomatrix(
         channel,
         distances=[10],
@@ -137,6 +138,10 @@ def manhattan_similarity_exp(u: np.ndarray, v: np.ndarray) -> np.floating:
     return np.exp(-manhattan_distance(u, v))
 
 
+def manhattan_similarity_log(u: np.ndarray, v: np.ndarray) -> np.floating:
+    return 1 / 1 + np.log(1 + manhattan_distance(u, v))
+
+
 def cosine_similarity(u: np.ndarray, v: np.ndarray) -> np.floating:
     """Cosine similiarty function
 
@@ -167,7 +172,8 @@ def feature_extraction_segment(
     If centroid and max_radius are provided, it crops the image
     """
     feature_functions = {
-        "comatrix": feature_extraction_comatrix
+        "comatrix": feature_extraction_comatrix,
+        "gabor": feature_extraction_gabor
     }
 
     if any(param is not None for param in (max_radius, centroid)):

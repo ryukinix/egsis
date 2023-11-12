@@ -68,7 +68,7 @@ def compute_node_features(
     graph: networkx.Graph,
     img: numpy.ndarray,
     segments: numpy.ndarray,
-    feature_method: Literal["fft", "comatrix"]
+    feature_method: Literal["gabor", "comatrix"]
 ) -> networkx.Graph:
     centroids = superpixels.superpixel_centroids(segments)
     max_radius = superpixels.superpixels_max_radius(segments, centroids)
