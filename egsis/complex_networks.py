@@ -1,4 +1,4 @@
-from typing import Dict, Set, Callable, Tuple, Literal
+from typing import Dict, Set, Callable, Tuple
 
 import numpy
 import networkx
@@ -68,7 +68,7 @@ def compute_node_features(
     graph: networkx.Graph,
     img: numpy.ndarray,
     segments: numpy.ndarray,
-    feature_method: Literal["fft", "comatrix"]
+    feature_method: features.FeaturesMethods
 ) -> networkx.Graph:
     centroids = superpixels.superpixel_centroids(segments)
     max_radius = superpixels.superpixels_max_radius(segments, centroids)

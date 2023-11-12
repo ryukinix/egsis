@@ -1,4 +1,4 @@
-from typing import Dict, Callable, List, Literal
+from typing import Dict, Callable, List
 
 import numpy
 import networkx
@@ -12,9 +12,10 @@ from egsis import labeling
 
 
 similarity_functions: Dict[str, Callable] = {
-    "euclidian_exp": features.euclidian_similarity_exp,
-    "manhattan_exp": features.manhattan_distance,
     "euclidian": features.euclidian_similarity,
+    "euclidian_exp": features.euclidian_similarity_exp,
+    "manhattan_exp": features.manhattan_similarity_exp,
+    "manhattan_log": features.manhattan_similarity_log,
     "cosine": features.cosine_similarity,
 }
 
@@ -46,7 +47,7 @@ class EGSIS:
        - network build method: superpixel neighbors
 
     feature extraction:
-        - feature method: multidimensional fast fourier transform
+        - feature method: comatrix
         - crop image: True | False
         - erase_color
         - similarity function: euclidian | cosine
@@ -63,7 +64,7 @@ class EGSIS:
         superpixel_sigma: float,
         superpixel_compactness: float,
         feature_crop_image: bool = True,
-        feature_extraction: Literal["fft", "comatrix"] = "fft",
+        feature_extraction: features.FeaturesMethods = "comatrix",
         feature_similarity: str = "euclidian",
         network_build_method: str = "neighbors",
         lcu_competition_level: float = 1,

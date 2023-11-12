@@ -12,6 +12,16 @@ def image_a():
         ]
     )
 
+@pytest.fixture
+def image_colorized():
+    return numpy.array(
+        [
+            [[1, 2, 3], [10, 20, 30], [20, 40, 60]],
+            [[1, 2, 3], [10, 20, 30], [20, 40, 60]],
+            [[1, 2, 3], [10, 20, 30], [20, 40, 60]]
+        ]
+    )
+
 
 @pytest.fixture
 def image_b():
