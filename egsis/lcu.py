@@ -190,7 +190,7 @@ class LabeledComponentUnfolding:
         return walk * survival
 
     def probability(self, G: nx.Graph) -> np.ndarray:
-        """Matrix with probabilities of particle survival"""
+        """Matrix with probabilities of particle surviving"""
         P = np.zeros(shape=self.N.shape)
         C, nodes, _ = P.shape
         for c in range(C):
@@ -224,7 +224,7 @@ class LabeledComponentUnfolding:
             if label != 0:
                 labels[cls, idx] = label
         particles = labels * population * self.scale_particles
-        logger.debug(f"n0: {particles}")
+        logger.debug(f"n0: \n{particles}")
         return particles
 
     def N0(self, G: nx.Graph):
