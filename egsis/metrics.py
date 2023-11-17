@@ -47,11 +47,25 @@ def err(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     -------
     err : float
 
-    The mis-segmentation rate. This is calculated as the
-    number of mis-segmented pixels (pixels that are in the union of
-    the true and predicted labels but not in the true labels) divided
+    The mis-segmentation rate. This is calculated as the number of
+    mis-segmented pixels (false-positives and false-negatives) divided
     by the total number of pixels in the ROI.
     """
-    roi_pixels = y_true
-    mis_segmentation = (y_true | y_pred) - y_true
-    return mis_segmentation.sum() / roi_pixels.sum()
+    union = (y_true | y_pred)
+    intersection = (y_true & y_pred)
+    mis_segmentation = (union - intersection).sum()
+    w, h = y_true.shape
+    roi = w * h
+    return mis_segmentation / roi
+
+
+def recall(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+    tp = (y_true & y_pred).sum()
+    fn = ((y_true | y_pred) - y_pred).sum()
+    return tp / (tp + fn)
+
+
+def precision(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+    tp = (y_true & y_pred).sum()
+    fp = ((y_true | y_pred) - y_true).sum()
+    return tp / (tp + fp)
