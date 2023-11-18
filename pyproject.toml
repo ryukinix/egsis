@@ -1,6 +1,6 @@
 [project]
 name = "egsis"
-version = "0.1.0a0"
+version = "0.1.0"
 description = "Exploratory Graph-based Semi-Supervised Image Segmentation"
 authors = [
     {name = "Manoel Vilela", email = "manoel_vilela@engineer.com"},
