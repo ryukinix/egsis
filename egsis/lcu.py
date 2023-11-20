@@ -6,27 +6,6 @@ import numpy as np
 
 from loguru import logger
 
-"""lerax - sex 09 dez 2022 13:55:34
-Alguma coisa não está certa... as subnetworks não são disjuntas, a
-função g que gera novas particulas quase sempre está zerada... a
-matriz delta só fica com elementos na diagonal... tem algo errado aqui
-
-lerax - sáb 17 dez 2022 02:47:16
-
-óh céus!!! A função de evolução não tá mudando em nada depois das
-primeiras iterações! Será que existe mais algum bug na implementação
-das equações!? Será que eu deveria fazer o que o verri falou e usar o
-paper mais novo?! Deixei em research/lcu_simplified_improved.pdf
-
-esse documento deve ajudar
-
-lerax - qua 21 dez 2022 10:10:58
-
-Parece que a evolução de nc está incorreta, inverti a multiplicação de
-matrizes, pois geralmente é matrix x vetor, não vetor x matrix...
-Os resultados começaram a ter maior variação, mas parecem estar invertidos..
-"""
-
 
 class LabeledComponentUnfolding:
 
