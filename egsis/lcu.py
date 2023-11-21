@@ -179,6 +179,8 @@ class LabeledComponentUnfolding:
         return P
 
     def probability_of_new_particles(self, G: nx.Graph, c: int) -> np.ndarray:
+        # FIXME: review this code based on the paper
+        # equation on page 4
         node_degrees = [
             G.degree[node] for node in G.nodes
         ]
