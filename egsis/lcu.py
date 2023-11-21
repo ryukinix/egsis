@@ -6,27 +6,6 @@ import numpy as np
 
 from loguru import logger
 
-"""lerax - sex 09 dez 2022 13:55:34
-Alguma coisa não está certa... as subnetworks não são disjuntas, a
-função g que gera novas particulas quase sempre está zerada... a
-matriz delta só fica com elementos na diagonal... tem algo errado aqui
-
-lerax - sáb 17 dez 2022 02:47:16
-
-óh céus!!! A função de evolução não tá mudando em nada depois das
-primeiras iterações! Será que existe mais algum bug na implementação
-das equações!? Será que eu deveria fazer o que o verri falou e usar o
-paper mais novo?! Deixei em research/lcu_simplified_improved.pdf
-
-esse documento deve ajudar
-
-lerax - qua 21 dez 2022 10:10:58
-
-Parece que a evolução de nc está incorreta, inverti a multiplicação de
-matrizes, pois geralmente é matrix x vetor, não vetor x matrix...
-Os resultados começaram a ter maior variação, mas parecem estar invertidos..
-"""
-
 
 class LabeledComponentUnfolding:
 
@@ -34,7 +13,7 @@ class LabeledComponentUnfolding:
     Collective Dynamic Labeled Component Unfolding
 
 
-    It can be used to solve Semi-Supervised problems.
+    It can be used to solve Transductive Semi-Supervised problems.
 
 
     Parameters
@@ -184,11 +163,13 @@ class LabeledComponentUnfolding:
         edge_weight = G.edges[i, j]["weight"]
         walk = edge_weight / G.degree[i]
         survival = 1 - self.competition_level * self.sigma(G, i, j, c)
-
+        # FIXME: weirdly, sigma function only outputs 1, 0.5  or 0
+        # it doesn't makes sense
+        # logger.trace(f"survival factor = {survival}")
         return walk * survival
 
     def probability(self, G: nx.Graph) -> np.ndarray:
-        """Matrix with probabilities of particle survival"""
+        """Matrix with probabilities of particle surviving"""
         P = np.zeros(shape=self.N.shape)
         C, nodes, _ = P.shape
         for c in range(C):
@@ -198,6 +179,8 @@ class LabeledComponentUnfolding:
         return P
 
     def probability_of_new_particles(self, G: nx.Graph, c: int) -> np.ndarray:
+        # FIXME: review this code based on the paper
+        # equation on page 4
         node_degrees = [
             G.degree[node] for node in G.nodes
         ]
@@ -222,7 +205,7 @@ class LabeledComponentUnfolding:
             if label != 0:
                 labels[cls, idx] = label
         particles = labels * population * self.scale_particles
-        logger.debug(f"n0: {particles}")
+        logger.debug(f"n0: \n{particles}")
         return particles
 
     def N0(self, G: nx.Graph):
@@ -241,17 +224,18 @@ class LabeledComponentUnfolding:
         return np.zeros(shape=(self.n_classes, nodes, nodes))
 
     def sigma(self, G: nx.Graph, i: int, j: int, c: int) -> float:
-        """Matrix with current relative domination sigma_ij[c]
+        """Current relative subordination sigma_ij[c]
 
-        Number of particles with label=c which moved from v_i to
-        v_j in the current time.
+        The fraction of particles that do not belong to class c and
+        have sucessfuly passed thorugh edge (i, j) in any direction at
+        the current time.
         """
-        S = np.sum((self.N[:, i, j] + self.N[:, j, i].T).flatten())
+        S = np.sum((self.N[:, i, j] + self.N[:, j, i]).flatten())
         result: float
-        if S <= 0:
-            result = 1 - (1 / self.n_classes)
-        else:
+        if S > 0:
             result = 1 - ((self.N[c][i][j] + self.N[c][j][i]) / S)
+        else:
+            result = 1 - (1 / self.n_classes)
 
         return result
 

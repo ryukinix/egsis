@@ -9,6 +9,15 @@ It's a Python implementation of a image segmentation algorithm that
 combines superpixel with complex networks dynamics. In this setup, we
 classify the algorithm as transductive as well.
 
+# Showcase on grabcut dataset
+
+![showcase](pics/egsis-showcase.png)
+
+First segmentation mask is the result of EGSIS segmentation over lasso
+annotation from GrabCut dataset, second segmentation mask is the
+ground truth.
+
+
 # What is transductive segmentation?
 
 Transductive segmentation is a concept in machine learning and
