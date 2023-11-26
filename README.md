@@ -80,6 +80,20 @@ transportation networks, and biological networks. They are
 characterized by their high degree of interconnectedness,
 non-linearity, and the presence of feedback loops.
 
+# How to cite this work
+
+```
+@booklet{machado2023egsis,
+  title        = {Segmentação Semi-Supervisionada de Imagens através
+  de Dinâmicas Coletivas em Redes Complexas},
+  author       = {Manoel Vilela Machado Neto},
+  howpublished = {Universidade Federal do Ceará (UFC)},
+  address      = {repositorio.ufc.br},
+  year         = 2023,
+  note         = {orientado pelo Dr. Jarbas Joaci de Mesquita Sá Junior}
+}
+```
+
 # License
 
 BSD 3-Clause
