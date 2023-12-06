@@ -1,0 +1,80 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: >-
+  Exploratory Graph-based Semi-supervised Image Segmentation
+  (EGSIS)
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - name-suffix: Neto
+    given-names: Manoel
+    family-names: Vilela Machado
+    email: manoelnt0@gmail.com
+    orcid: 'https://orcid.org/0009-0005-5294-1675'
+    affiliation: 'Instituto Tecnológico de Aeronáutica '
+repository-code: 'https://www.github.com/ryukinix/egsis'
+url: 'https://www.github.com/ryukinix/egsis'
+repository-artifact: 'https://pypi.org/project/egsis/'
+abstract: >
+  Image segmentation is a technique that divides the image
+  into regions
+
+  of interest, such as objects in a landscape. Image
+  segmentation
+
+  algorithms present variations in their types of learning,
+  including
+
+  unsupervised, supervised, and semi-supervised. In the
+  context of
+
+  interactive segmentation, the challenge is to segment
+  objects from the
+
+  background with the help of initial labels provided by a
+
+  user. Superpixels are unsupervised segmentation algorithms
+  used as
+
+  pre-segmentation for various image problems, such as
+  classification
+
+  and segmentation. Complex networks are graphs with
+  non-trivial
+
+  structures used to represent certain data domains, such as
+  regions of
+
+  an image and their neighborhoods. Collective dynamics in a
+  complex
+
+  network refer to the emergent and interactive behavior of
+  various
+
+  elements or actors within an interconnected and complex
+  network, where
+
+  the actions of one element can influence the actions of
+  others. In
+
+  this work, we propose a semi-supervised image segmentation
+  algorithm
+
+  that combines the techniques of superpixels, complex
+  networks, and
+
+  collective dynamics. The method is evaluated under various
+  conditions
+
+  through an interactive segmentation scenario.
+keywords:
+  - complex networks
+  - image segmentation
+  - superpixel
+  - collective dynamics
+  - interactive segmentation
+license: BSD-3-Clause
