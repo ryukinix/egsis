@@ -230,21 +230,37 @@ class LabeledComponentUnfolding:
         have sucessfuly passed thorugh edge (i, j) in any direction at
         the current time.
         """
-        S = np.sum((self.N[:, i, j] + self.N[:, j, i]).flatten())
+        # Usando self.delta (acumulado) conforme Eq. 2.10
+        # A soma S deve considerar todas as classes no fluxo acumulado entre i e j
+        S = np.sum(self.delta[:, i, j] + self.delta[:, j, i])
         result: float
         if S > 0:
-            result = 1 - ((self.N[c][i][j] + self.N[c][j][i]) / S)
+            result = 1 - ((self.delta[c, i, j] + self.delta[c, j, i]) / S)
         else:
             result = 1 - (1 / self.n_classes)
 
         return result
 
     def g(self, G: nx.Graph, c: int) -> np.ndarray:
-        """Auxiliar function to compute new particles"""
-        n0_sum = np.sum(self.n0(G)[c].flatten())
-        n_sum = np.sum(self.n[c].flatten())
-        p = self.probability_of_new_particles(G, c)
-        g = p * max(0, n0_sum - n_sum)
+        """Auxiliar function to compute new particles (Local per node - Eq. 2.11)"""
+        # n0 and n are (n_classes, nodes)
+        # Eq 2.11: g_i = rho * max(0, sum(n_j(0) - n_j(t)))
+        # rho_i := deg(vi) / sum(deg(vj)) se vi em fontes, senao 0
+        
+        # rho vector
+        degrees = np.array([G.degree[node] for node in G.nodes])
+        total_degree_sum = sum(degrees)
+        rho = np.array([
+            degrees[i] / total_degree_sum if G.nodes[list(G.nodes)[i]].get("label", 0) == c + 1 else 0
+            for i in range(len(G.nodes))
+        ])
+        
+        # Dif = sum(n_j(0) - n_j(t))
+        # Para classe c, somamos as diferenças
+        n0 = self.n0(G)[c]
+        diff_sum = np.sum(n0 - self.n[c])
+        
+        g = rho * max(0, diff_sum)
         return g
 
     def classify_vertexes(self, sub_networks: List[nx.Graph]) -> nx.Graph:
