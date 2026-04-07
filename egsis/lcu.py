@@ -186,7 +186,7 @@ class LabeledComponentUnfolding:
         ]
         total_degree_sum = sum(node_degrees)
         p = np.array([
-            degree / total_degree_sum if G.nodes[node]["label"] == c + 1 else 0
+            degree / total_degree_sum if G.nodes[node].get("label", 0) == c + 1 else 0
             for node, degree in zip(G.nodes, node_degrees)
         ])
         return p
