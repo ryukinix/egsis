@@ -1,15 +1,9 @@
-from typing import Dict, Callable, List
-
+from typing import Dict, Callable, List, Optional
 import numpy
 import networkx
 from loguru import logger
-
-from egsis import complex_networks
-from egsis import features
-from egsis import lcu
-from egsis import superpixels
-from egsis import labeling
-
+from egsis import complex_networks, features, lcu, superpixels, labeling, graph_utils 
+from egsis.graph_builder import GraphBuilder, GraphBuilderPlain
 
 similarity_functions: Dict[str, Callable] = {
     "euclidian": features.euclidian_similarity,
@@ -19,45 +13,7 @@ similarity_functions: Dict[str, Callable] = {
     "cosine": features.cosine_similarity,
 }
 
-
 class EGSIS:
-    """
-    [E]xploratory
-    [G]raph-based
-    [S]emi-supervised
-    [I]mage
-    [S]egmentation
-
-    Notes
-    -----
-
-    Combines superpixels, complex networks and graph-based collective
-    dynamics to solve a semi-supervised image segmentation challenge.
-
-    Parameters
-    ----------
-
-    superpixel:
-       - method: slic
-       - segments
-       - compactaness
-       - gama
-
-    complex networks:
-       - network build method: superpixel neighbors
-
-    feature extraction:
-        - feature method: comatrix
-        - crop image: True | False
-        - erase_color
-        - similarity function: euclidian | cosine
-
-    labeled component unfolding:
-        - competition_level
-        - max_iter
-
-    """
-
     def __init__(
         self,
         superpixel_segments: int,
@@ -66,7 +22,7 @@ class EGSIS:
         feature_crop_image: bool = True,
         feature_extraction: features.FeaturesMethods = "comatrix",
         feature_similarity: str = "euclidian",
-        network_build_method: str = "neighbors",
+        graph_builder: Optional[GraphBuilder] = None,
         lcu_competition_level: float = 1,
         lcu_max_iter: int = 100
     ):
@@ -76,7 +32,7 @@ class EGSIS:
         self.feature_extraction = feature_extraction
         self.feature_crop_image = feature_crop_image
         self.feature_similarity = similarity_functions[feature_similarity]
-        self.network_build_method = network_build_method
+        self.graph_builder = graph_builder or GraphBuilderPlain()
         self.lcu_competition_level = lcu_competition_level
         self.lcu_max_iter = lcu_max_iter
         self.G: networkx.Graph
@@ -90,83 +46,37 @@ class EGSIS:
             compactness=self.superpixel_compactness,
             sigma=self.superpixel_sigma
         )
-        # NOTE(@lerax): seg 01 mai 2023 09:47:57
-        # segments indexing by 0, keep easier to control nodes vs edges vs numpy
         segments = segments - 1
         return segments
 
-    def build_complex_network(
-        self,
-        X: numpy.ndarray,
-        y: numpy.ndarray,
-        segments: numpy.ndarray
-    ) -> networkx.Graph:
+    def build_complex_network(self, X, y, segments) -> networkx.Graph:
         G = complex_networks.complex_network_from_segments(segments)
-        complex_networks.compute_node_labels(
-            graph=G,
-            segments=segments,
-            labels=y
-        )
-        logger.info("Complex networks: compute node labels finished.")
-        complex_networks.compute_node_features(
-            graph=G,
-            img=X,
-            segments=segments,
-            feature_method=self.feature_extraction
-        )
-        logger.info("Complex networks: feature extraction finished.")
-        complex_networks.compute_edge_weights(
-            graph=G,
-            similarity_function=self.feature_similarity
-        )
-        logger.info("Complex networks: compute node weights finished.")
+        complex_networks.compute_node_labels(G, segments, y)
+        complex_networks.compute_node_features(G, X, segments, self.feature_extraction)
+        complex_networks.compute_edge_weights(G, self.feature_similarity)
         return G
 
-    def sub_networks_to_matrix(self, sub_networks: List[networkx.Graph]):
-        # FIXME: this should return subnetworks and a auxiliar
-        # function should generate a new y_pred matrix
-        return sub_networks
-
     def fit_predict(self, X: numpy.ndarray, y: numpy.ndarray):
-        """
-
-        Parameters:
-        ------------
-        X : numpy.ndarray (shape=(n, m, 3))
-             it's the image matrix with values being the pixel
-             luminosity of each color channel of RGB
-        y : numpy.ndarray (shape=(n, m))
-             it's the label matrix with partial annotation, to be full
-             filled every non-zero value it's a label, and zero it's
-             an unlabeled pixel.
-        Returns
-        -------
-        new y matrix with full filled labels.
-        """
-        logger.info("Run!")
         self.segments = self.build_superpixels(X)
-        logger.info("Superpixels: finished.")
-        self.G = self.build_complex_network(X, y, self.segments)
-        logger.info("Complex networks: finished.")
-        n_classes = len(numpy.unique(y)) - 1
+        G_temp = complex_networks.complex_network_from_segments(self.segments)
+        complex_networks.compute_node_features(G_temp, X, self.segments, self.feature_extraction)
+        features = numpy.array([G_temp.nodes[n]["features"] for n in G_temp.nodes])
+        G_raw = self.graph_builder.build(self.segments, features)
+        G_mapped, self.mapping, self.rev_mapping = graph_utils.prepare_graph_for_lcu(G_raw)
+        for node in G_mapped.nodes:
+            orig = self.rev_mapping[node]
+            G_mapped.nodes[node]["features"] = G_temp.nodes[orig]["features"]
+            G_mapped.nodes[node]["label"] = labeling.get_superpixel_label(y, self.segments, orig)
+        complex_networks.compute_edge_weights(G_mapped, self.feature_similarity)
         collective_dynamic = lcu.LabeledComponentUnfolding(
             competition_level=self.lcu_competition_level,
             max_iter=self.lcu_max_iter,
-            n_classes=n_classes
+            n_classes=len(numpy.unique(y[y > 0]))
         )
-
-        self.sub_networks = collective_dynamic.fit_predict(self.G)
-        self.G_pred = collective_dynamic.classify_vertexes(self.sub_networks)
-        logger.info("Dynamic collective LCU: finished.")
-
-        # FIXME: should return a matrix y with new labels
-        return self.G_pred
+        self.sub_networks = collective_dynamic.fit_predict(G_mapped)
+        return collective_dynamic.classify_vertexes(self.sub_networks)
 
     def fit_predict_segmentation_mask(self, X: numpy.ndarray, y: numpy.ndarray):
-        G = self.fit_predict(X, y)
-        superpixels_by_label = {}
-        for node in G.nodes:
-            label = G.nodes[node]["label"]
-            superpixels_by_label[node] = label
-
+        G_relabeled = self.fit_predict(X, y)
+        superpixels_by_label = {self.rev_mapping[node]: G_relabeled.nodes[node]["label"] for node in G_relabeled.nodes}
         return labeling.create_segmentation_mask(self.segments, superpixels_by_label)
