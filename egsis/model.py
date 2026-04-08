@@ -1,7 +1,7 @@
 from typing import Dict, Callable, List, Optional
 import numpy
 import networkx
-from egsis import complex_networks, features, lcu, superpixels, labeling, graph_utils 
+from egsis import complex_networks, features, lcu, superpixels, labeling, graph_utils
 from egsis.graph_builder import GraphBuilder, GraphBuilderPlain
 
 similarity_functions: Dict[str, Callable] = {
