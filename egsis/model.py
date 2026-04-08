@@ -1,7 +1,8 @@
 from typing import Dict, Callable, List, Optional
 import numpy
 import networkx
-from egsis import complex_networks, features, lcu, superpixels, labeling, graph_utils
+from loguru import logger
+from egsis import complex_networks, features, lcu, superpixels, labeling, graph_utils 
 from egsis.graph_builder import GraphBuilder, GraphBuilderPlain
 
 similarity_functions: Dict[str, Callable] = {
@@ -11,7 +12,6 @@ similarity_functions: Dict[str, Callable] = {
     "manhattan_log": features.manhattan_similarity_log,
     "cosine": features.cosine_similarity,
 }
-
 
 class EGSIS:
     def __init__(
@@ -49,6 +49,13 @@ class EGSIS:
         segments = segments - 1
         return segments
 
+    def build_complex_network(self, X, y, segments) -> networkx.Graph:
+        G = complex_networks.complex_network_from_segments(segments)
+        complex_networks.compute_node_labels(G, segments, y)
+        complex_networks.compute_node_features(G, X, segments, self.feature_extraction)
+        complex_networks.compute_edge_weights(G, self.feature_similarity)
+        return G
+
     def fit_predict(self, X: numpy.ndarray, y: numpy.ndarray):
         self.segments = self.build_superpixels(X)
         G_temp = complex_networks.complex_network_from_segments(self.segments)
@@ -67,7 +74,7 @@ class EGSIS:
             n_classes=len(numpy.unique(y[y > 0]))
         )
         self.sub_networks = collective_dynamic.fit_predict(G_mapped)
-        return collective_dynamic.classify_vertexes(G_mapped)
+        return collective_dynamic.classify_vertexes(self.sub_networks)
 
     def fit_predict_segmentation_mask(self, X: numpy.ndarray, y: numpy.ndarray):
         G_relabeled = self.fit_predict(X, y)
