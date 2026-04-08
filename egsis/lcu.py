@@ -230,8 +230,8 @@ class LabeledComponentUnfolding:
         have sucessfuly passed thorugh edge (i, j) in any direction at
         the current time.
         """
-        # Usando self.delta (acumulado) conforme Eq. 2.10
-        # A soma S deve considerar todas as classes no fluxo acumulado entre i e j
+        # Using self.delta (cumulative) according to Eq. 2.10
+        # The sum S must consider all classes in the cumulative flow between i and j
         S = np.sum(self.delta[:, i, j] + self.delta[:, j, i])
         result: float
         if S > 0:
@@ -255,8 +255,8 @@ class LabeledComponentUnfolding:
             for i in range(len(G.nodes))
         ])
 
-        # Dif = sum(n_j(0) - n_j(t))
-        # Para classe c, somamos as diferenças
+        # Diff = sum(n_j(0) - n_j(t))
+        # For class c, sum the differences
         n0 = self.n0(G)[c]
         diff_sum = np.sum(n0 - self.n[c])
 
