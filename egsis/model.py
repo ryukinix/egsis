@@ -1,8 +1,7 @@
 from typing import Dict, Callable, List, Optional
 import numpy
 import networkx
-from loguru import logger
-from egsis import complex_networks, features, lcu, superpixels, labeling
+from egsis import complex_networks, features, lcu, superpixels, labeling, graph_utils 
 from egsis.graph_builder import GraphBuilder, GraphBuilderPlain
 
 similarity_functions: Dict[str, Callable] = {
@@ -12,6 +11,7 @@ similarity_functions: Dict[str, Callable] = {
     "manhattan_log": features.manhattan_similarity_log,
     "cosine": features.cosine_similarity,
 }
+
 
 class EGSIS:
     def __init__(
@@ -51,32 +51,25 @@ class EGSIS:
 
     def fit_predict(self, X: numpy.ndarray, y: numpy.ndarray):
         self.segments = self.build_superpixels(X)
-        
-        # Cria grafo temporário apenas para extrair features
         G_temp = complex_networks.complex_network_from_segments(self.segments)
         complex_networks.compute_node_features(G_temp, X, self.segments, self.feature_extraction)
         features = numpy.array([G_temp.nodes[n]["features"] for n in G_temp.nodes])
-        
-        # Constrói grafo final usando o builder (Plain ou KNN)
-        self.G = self.graph_builder.build(self.segments, features)
-        
-        # Reinserir features calculadas na estrutura final
-        for i, node in enumerate(self.G.nodes):
-            self.G.nodes[node]["features"] = G_temp.nodes[node]["features"]
-            
-        complex_networks.compute_node_labels(self.G, self.segments, y)
-        complex_networks.compute_edge_weights(self.G, self.feature_similarity)
-        
-        n_classes = len(numpy.unique(y)) - 1
+        G_raw = self.graph_builder.build(self.segments, features)
+        G_mapped, self.mapping, self.rev_mapping = graph_utils.prepare_graph_for_lcu(G_raw)
+        for node in G_mapped.nodes:
+            orig = self.rev_mapping[node]
+            G_mapped.nodes[node]["features"] = G_temp.nodes[orig]["features"]
+            G_mapped.nodes[node]["label"] = labeling.get_superpixel_label(y, self.segments, orig)
+        complex_networks.compute_edge_weights(G_mapped, self.feature_similarity)
         collective_dynamic = lcu.LabeledComponentUnfolding(
             competition_level=self.lcu_competition_level,
             max_iter=self.lcu_max_iter,
-            n_classes=n_classes
+            n_classes=len(numpy.unique(y[y > 0]))
         )
-        self.sub_networks = collective_dynamic.fit_predict(self.G)
-        return collective_dynamic.classify_vertexes(self.sub_networks)
+        self.sub_networks = collective_dynamic.fit_predict(G_mapped)
+        return collective_dynamic.classify_vertexes(G_mapped)
 
     def fit_predict_segmentation_mask(self, X: numpy.ndarray, y: numpy.ndarray):
-        G = self.fit_predict(X, y)
-        superpixels_by_label = {node: G.nodes[node]["label"] for node in G.nodes}
+        G_relabeled = self.fit_predict(X, y)
+        superpixels_by_label = {self.rev_mapping[node]: G_relabeled.nodes[node]["label"] for node in G_relabeled.nodes}
         return labeling.create_segmentation_mask(self.segments, superpixels_by_label)

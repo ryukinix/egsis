@@ -246,7 +246,7 @@ class LabeledComponentUnfolding:
         # n0 and n are (n_classes, nodes)
         # Eq 2.11: g_i = rho * max(0, sum(n_j(0) - n_j(t)))
         # rho_i := deg(vi) / sum(deg(vj)) se vi em fontes, senao 0
-        
+
         # rho vector
         degrees = np.array([G.degree[node] for node in G.nodes])
         total_degree_sum = sum(degrees)
@@ -254,12 +254,12 @@ class LabeledComponentUnfolding:
             degrees[i] / total_degree_sum if G.nodes[list(G.nodes)[i]].get("label", 0) == c + 1 else 0
             for i in range(len(G.nodes))
         ])
-        
+
         # Dif = sum(n_j(0) - n_j(t))
         # Para classe c, somamos as diferenças
         n0 = self.n0(G)[c]
         diff_sum = np.sum(n0 - self.n[c])
-        
+
         g = rho * max(0, diff_sum)
         return g
 
